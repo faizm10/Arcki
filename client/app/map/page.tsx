@@ -469,7 +469,7 @@ export default function MapPage() {
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/standard",
         projection: { name: "globe" },
-        center: [-74.006, 40.7128],
+        center: [-122.4194, 37.7749], // San Francisco
         zoom: 15.5,
         pitch: 60,
         bearing: -17.6,
