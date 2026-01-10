@@ -944,11 +944,7 @@ export default function MapPage() {
       {showPromptGenerator && (
         <Prompt3DGenerator
           onClose={() => setShowPromptGenerator(false)}
-          onGenerate={(prompt) => {
-            console.log("Generated prompt:", prompt);
-            // TODO: Integrate with 3D generation API
-            // For now, just log it
-          }}
+           onPlaceModel={handlePlaceModel}
         />
       )}
       {selectedModelId && gizmoScreenPos && (

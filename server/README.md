@@ -1,159 +1,202 @@
-# TRELLIS 3D Generation Server (Hugging Face)
+# Delta Architecture 3D Generation Server
 
-This FastAPI server provides image-to-3D mesh generation using Microsoft's TRELLIS via **Hugging Face Spaces** (free!).
+Full-stack architecture 3D generation pipeline: **Text → OpenAI Clean → DALL-E 2D → fal.ai Trellis 3D**
 
 ## Features
 
-✅ **Free** - Uses Hugging Face's free tier
-✅ **No GPU needed locally** - Runs on HF's cloud GPUs
-✅ **Production-quality** - Microsoft TRELLIS model
-✅ **Easy setup** - Just install dependencies
+- **Text-to-3D Pipeline**: Describe a building → Get a 3D model
+- **AI Prompt Enhancement**: GPT-4 optimizes prompts for architectural visualization
+- **High-Quality 2D Generation**: DALL-E 3 creates photorealistic renders
+- **Multi-View Support**: Generate 1-4 views for better 3D reconstruction
+- **fal.ai Trellis**: State-of-the-art image-to-3D conversion
+- **GLB Output**: Universal 3D format with PBR textures
+- **Async Jobs**: Background processing with status polling
 
 ## Quick Start
 
 ### 1. Install Dependencies
 
 ```bash
-cd /Users/jamesli/Documents/Code4/mapbox-delta/server
+cd server
 pip install -r requirements.txt
 ```
 
-### 2. Run the Server
+### 2. Configure Environment
+
+```bash
+cp .env.example .env
+# Edit .env with your API keys
+```
+
+Required keys:
+- `OPENAI_API_KEY` - Get from [OpenAI Platform](https://platform.openai.com/api-keys)
+- `FAL_KEY` - Get from [fal.ai Dashboard](https://fal.ai/dashboard/keys)
+
+### 3. Run the Server
 
 ```bash
 python server.py
 ```
 
-Server will start on `http://localhost:8000`
+Server starts on `http://localhost:8000`
 
-### 3. Test It
+## API Endpoints
 
-Visit `http://localhost:8000/docs` for interactive API docs.
+### Main Pipeline
 
-Or test with curl:
+#### `POST /generate-architecture`
+Full synchronous pipeline: text → 2D → 3D
+
 ```bash
-curl -X POST "http://localhost:8000/generate-mesh" \
-  -F "file=@your-image.jpg"
+curl -X POST "http://localhost:8000/generate-architecture" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Classic Parisian Haussmann building with ornate balconies",
+    "style": "classical",
+    "num_views": 2,
+    "texture_size": 1024,
+    "high_quality": true
+  }'
 ```
 
-## How It Works
+#### `POST /generate-architecture-async`
+Async version - returns job ID for polling
 
-```
-User uploads image
-    ↓
-Your FastAPI Server (localhost:8000)
-    ↓
-Hugging Face Spaces (JeffreyXiang/TRELLIS-Demo)
-    ↓
-TRELLIS generates 3D mesh on HF's GPU (free!)
-    ↓
-GLB file returned to user
-```
+```bash
+# Start job
+curl -X POST "http://localhost:8000/generate-architecture-async" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Modern glass skyscraper", "num_views": 1}'
 
-## Endpoints
-
-### `GET /`
-Health check and server info
-
-### `GET /health`
-Health check endpoint
-
-### `POST /generate-mesh`
-Upload an image, get a 3D mesh (.glb file)
-
-**Input:**
-- `file`: Image file (JPG, PNG, etc.)
-
-**Output:**
-```json
-{
-  "status": "success",
-  "message": "Mesh generation completed via Hugging Face",
-  "input_file": "building.jpg",
-  "output_file": "building.glb",
-  "download_url": "/download/building.glb",
-  "format": "glb"
-}
+# Poll status
+curl "http://localhost:8000/job/{job_id}"
 ```
 
-### `GET /download/{filename}`
-Download generated mesh file
+### Individual Stages
+
+#### `POST /clean-prompt`
+Clean and enhance prompt with GPT-4
+
+#### `POST /generate-image`
+Generate 2D images with DALL-E 3
+
+#### `POST /generate-3d`
+Generate 3D model with fal.ai Trellis
+
+### Direct Upload
+
+#### `POST /upload-and-generate`
+Upload existing image → 3D model
+
+```bash
+curl -X POST "http://localhost:8000/upload-and-generate" \
+  -F "file=@building.jpg"
+```
+
+### Utility
+
+- `GET /` - Server info
+- `GET /health` - Health check
+- `GET /download/{filename}` - Download GLB file
+- `DELETE /cleanup` - Clean up files
+
+## Pipeline Flow
+
+```
+User Text Prompt
+       ↓
+┌──────────────────────────────────────┐
+│  Stage 1: OpenAI GPT-4               │
+│  - Clean prompt                      │
+│  - Generate DALL-E optimized prompt  │
+│  - Extract style tags                │
+└──────────────────────────────────────┘
+       ↓
+┌──────────────────────────────────────┐
+│  Stage 2: OpenAI DALL-E 3            │
+│  - Generate 1-4 architectural views  │
+│  - HD quality, 1024x1024             │
+│  - Natural photorealistic style      │
+└──────────────────────────────────────┘
+       ↓
+┌──────────────────────────────────────┐
+│  Stage 3: fal.ai Trellis             │
+│  - Single or multi-image input       │
+│  - 3D reconstruction                 │
+│  - GLB output with PBR textures      │
+└──────────────────────────────────────┘
+       ↓
+    GLB File
+```
+
+## Configuration Options
+
+### Styles
+- `architectural` - Realistic architectural visualization
+- `modern` - Contemporary glass/steel design
+- `classical` - Traditional elements, columns, ornate
+- `futuristic` - Innovative shapes, sustainable tech
+
+### Texture Size
+- `512` - Fast, lower quality
+- `1024` - Balanced (default)
+- `2048` - High quality, slower
+
+### Number of Views
+- `1` - Single view, fastest
+- `2-4` - Multi-view, better 3D quality
+
+## Costs
+
+| Service | Cost |
+|---------|------|
+| OpenAI GPT-4 | ~$0.01/prompt |
+| OpenAI DALL-E 3 HD | ~$0.08/image |
+| fal.ai Trellis | ~$0.02/model |
+
+**Total per model**: ~$0.10-0.40 depending on views
 
 ## Performance
 
-**First request**: 30-60 seconds (HF Space needs to load)
-**Subsequent requests**: 15-30 seconds per mesh
+| Stage | Time |
+|-------|------|
+| Prompt cleaning | 1-2s |
+| Image generation | 10-20s per view |
+| 3D generation | 15-30s |
 
-⚠️ **HF Spaces can timeout** if many people are using it. If this happens:
-- Try again (it usually works on retry)
-- Or upgrade to fal.ai ($0.25/mesh) or Modal (needs setup)
+**Total**: ~30-90 seconds depending on views
 
 ## Output Format
 
-TRELLIS outputs **GLB files**, which include:
-- 3D geometry
-- PBR materials (roughness, metallic)
-- Can be viewed in:
-  - Blender
-  - three.js (web)
-  - Any 3D viewer
+GLB files include:
+- Optimized mesh geometry
+- PBR materials (roughness, metallic, normal maps)
+- UV-mapped textures
 
-## Limitations
-
-❌ **Shared resources** - HF Spaces is free but shared
-❌ **Can timeout** - If server is busy
-❌ **Slower than paid options** - But free!
-✅ **Good quality** - Same model as fal.ai
-
-## Input Requirements
-
-Works best with:
-- **Single objects** (buildings, furniture, products)
-- **Clear images** with good lighting
-- **Simple backgrounds** (auto-removed)
-
-## Cost
-
-**$0** - Completely free!
+Compatible with:
+- Mapbox GL JS (native model layer)
+- Three.js / React Three Fiber
+- Blender
+- Any glTF 2.0 viewer
 
 ## Troubleshooting
 
-### "Connection timeout"
-HF Space is overloaded. Wait and try again.
+### "OpenAI not configured"
+Set `OPENAI_API_KEY` in your environment or `.env` file
 
-### "Space is building"
-First request after idle. Wait 30-60 seconds.
+### "fal.ai not configured"
+Set `FAL_KEY` in your environment or `.env` file
 
-### "Model not found"
-The HF Space might be down. Check: https://huggingface.co/spaces/JeffreyXiang/TRELLIS-Demo
+### "DALL-E rejected prompt"
+The prompt may contain content policy violations. Try rephrasing.
 
-### GLB file won't open
-Try viewing in:
-- Blender (free)
-- https://gltf-viewer.donmccurdy.com/
-- three.js viewer online
+### Slow generation
+- Reduce `num_views` to 1
+- Use `high_quality: false`
+- Use smaller `texture_size`
 
-## Upgrading
+## Development
 
-If HF Spaces is too slow or unreliable:
-
-**Option 1: fal.ai** ($0.25/mesh)
-- Same model
-- Faster, more reliable
-- Requires API key and payment
-
-**Option 2: Modal** (DIY, ~$0.01/mesh)
-- Deploy your own instance
-- Full control
-- More complex setup
-
-## Next Steps
-
-1. Test with your building images
-2. If quality is good but too slow → Consider fal.ai
-3. If quality not good for buildings → Try photogrammetry instead
-
-## Support
-
-- Hugging Face Space: https://huggingface.co/spaces/JeffreyXiang/TRELLIS-Demo
-- TRELLIS repo: https://github.com/microsoft/TRELLIS.2
+Interactive API docs available at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`

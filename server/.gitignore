@@ -6,7 +6,9 @@ __pycache__/
 .Python
 venv/
 .venv/
-env/
+env/*
+.env.local
+.env
 ENV/
 
 # Uploads and outputs
