@@ -14,8 +14,8 @@ async def root():
     fal_svc = FalService()
 
     return {
-        "name": "Delta Architecture 3D Generation Server",
-        "version": "4.0.0",
+        "name": "Arcki API",
+        "version": "1.0.0",
         "pipeline": "Text → OpenAI Clean → DALL-E 2D → fal.ai Trellis 3D",
         "output_format": "GLB",
         "services": {

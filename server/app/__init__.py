@@ -1,1 +1,1 @@
-# Delta Architecture 3D Generation Server
+# Arcki API Server

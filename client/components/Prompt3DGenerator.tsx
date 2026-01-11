@@ -114,11 +114,14 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [prompt, style, numViews, workflowStage, previewResult, selectedImageIndex, threeDJob]);
 
-  // Auto-minimize when user switches to another tool
+  // Auto-minimize when user switches to another tool, expand when they return
   useEffect(() => {
     if (!isVisible && !isMinimized) {
       // User switched tools - auto-minimize to keep generation running
       setIsMinimized(true);
+    } else if (isVisible && isMinimized) {
+      // User clicked Generate again - expand
+      setIsMinimized(false);
     }
   }, [isVisible]);
 

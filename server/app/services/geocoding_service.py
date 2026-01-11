@@ -72,7 +72,7 @@ class GeocodingService:
 
     NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
     NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
-    USER_AGENT = "delta-architecture-app/1.0"
+    USER_AGENT = "arcki/1.0"
 
     async def geocode(self, query: str) -> Optional[GeocodingResult]:
         """

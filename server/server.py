@@ -8,9 +8,9 @@ from app.services import OpenAIService, FalService
 
 # Initialize app
 app = FastAPI(
-    title="Delta Architecture 3D Generation Server",
-    description="Text → 2D → 3D pipeline for architectural model generation",
-    version="4.0.0",
+    title="Arcki API",
+    description="AI-powered 3D architecture visualization API",
+    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -39,7 +39,7 @@ async def startup():
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("Delta Architecture 3D Generation Server")
+    print("Arcki API Server")
     print("=" * 60)
 
     openai_svc = OpenAIService()
