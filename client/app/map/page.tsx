@@ -847,7 +847,7 @@ export default function MapPage() {
             type: "fill",
             filter: ["all", ["==", "$type", "Polygon"]],
             paint: {
-              "fill-color": "#00ffff",
+              "fill-color": "#404040",
               "fill-opacity": 0.15,
             },
           },
@@ -856,7 +856,7 @@ export default function MapPage() {
             type: "line",
             filter: ["all", ["==", "$type", "Polygon"]],
             paint: {
-              "line-color": "#00ffff",
+              "line-color": "#404040",
               "line-width": 2,
             },
           },
@@ -866,7 +866,7 @@ export default function MapPage() {
             filter: ["all", ["==", "$type", "Point"]],
             paint: {
               "circle-radius": 5,
-              "circle-color": "#00ffff",
+              "circle-color": "#404040",
             },
           },
           {
@@ -874,7 +874,7 @@ export default function MapPage() {
             type: "line",
             filter: ["all", ["==", "$type", "LineString"]],
             paint: {
-              "line-color": "#00ffff",
+              "line-color": "#404040",
               "line-width": 2,
               "line-dasharray": [2, 2],
             },
@@ -928,7 +928,7 @@ export default function MapPage() {
           type: "fill",
           source: "selected-building",
           paint: {
-            "fill-color": "#00ffff",
+            "fill-color": "#404040",
             "fill-opacity": 0.12,
           },
         });
@@ -938,7 +938,7 @@ export default function MapPage() {
           type: "line",
           source: "selected-building",
           paint: {
-            "line-color": "#00ffff",
+            "line-color": "#404040",
             "line-width": 8,
             "line-opacity": 0.4,
             "line-blur": 3,
@@ -950,7 +950,7 @@ export default function MapPage() {
           type: "line",
           source: "selected-building",
           paint: {
-            "line-color": "#7fffff",
+            "line-color": "#404040",
             "line-width": 2.5,
             "line-opacity": 0.95,
           },
@@ -1039,6 +1039,46 @@ export default function MapPage() {
   useEffect(() => {
     if (map.current && map.current.isStyleLoaded()) {
       map.current.setConfigProperty("basemap", "lightPreset", lightMode);
+
+      // Update selection colors based on light mode
+      const selectionColor = lightMode === "day" ? "#404040" : "#d0d0d0";
+
+      // Update selected building layers
+      if (map.current.getLayer("selected-building-fill")) {
+        map.current.setPaintProperty("selected-building-fill", "fill-color", selectionColor);
+      }
+      if (map.current.getLayer("selected-building-glow")) {
+        map.current.setPaintProperty("selected-building-glow", "line-color", selectionColor);
+      }
+      if (map.current.getLayer("selected-building-outline")) {
+        map.current.setPaintProperty("selected-building-outline", "line-color", selectionColor);
+      }
+
+      // Update MapboxDraw layers
+      if (map.current.getLayer("gl-draw-polygon-fill.cold")) {
+        map.current.setPaintProperty("gl-draw-polygon-fill.cold", "fill-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-polygon-fill.hot")) {
+        map.current.setPaintProperty("gl-draw-polygon-fill.hot", "fill-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-polygon-stroke.cold")) {
+        map.current.setPaintProperty("gl-draw-polygon-stroke.cold", "line-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-polygon-stroke.hot")) {
+        map.current.setPaintProperty("gl-draw-polygon-stroke.hot", "line-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-point.cold")) {
+        map.current.setPaintProperty("gl-draw-point.cold", "circle-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-point.hot")) {
+        map.current.setPaintProperty("gl-draw-point.hot", "circle-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-line.cold")) {
+        map.current.setPaintProperty("gl-draw-line.cold", "line-color", selectionColor);
+      }
+      if (map.current.getLayer("gl-draw-line.hot")) {
+        map.current.setPaintProperty("gl-draw-line.hot", "line-color", selectionColor);
+      }
     }
   }, [lightMode]);
 
