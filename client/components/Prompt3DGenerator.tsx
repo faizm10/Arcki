@@ -339,7 +339,6 @@ export function Prompt3DGenerator({ onClose, onPlaceModel }: Prompt3DGeneratorPr
     { label: "Paris Haussmann", prompt: "Classic Parisian Haussmann-style building with ornate balconies and mansard roof" },
     { label: "Modern Tower", prompt: "Sleek glass skyscraper with geometric facade patterns" },
     { label: "Neo-Gothic", prompt: "Gothic revival cathedral with pointed arches and flying buttresses" },
-    { label: "Brutalist", prompt: "Raw concrete brutalist apartment block with angular forms" },
   ];
 
   // Expanded Modal View
@@ -469,7 +468,7 @@ export function Prompt3DGenerator({ onClose, onPlaceModel }: Prompt3DGeneratorPr
 
               {/* Quick Prompts */}
               <div className="space-y-2">
-                <label className="text-white/70 text-sm font-medium">Presets</label>
+                <label className="text-white/70 text-sm font-medium">Suggestions</label>
                 <div className="flex flex-wrap gap-2">
                   {quickPrompts.map((qp) => (
                     <button

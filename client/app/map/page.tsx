@@ -16,6 +16,8 @@ import { Prompt3DGenerator } from "@/components/Prompt3DGenerator";
 import { TransformGizmo } from "@/components/TransformGizmo";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchResultPopup } from "@/components/SearchResultPopup";
+import { HomeIcon, GitHubLogoIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 interface SelectedBuilding {
   id: string | number;
@@ -88,6 +90,30 @@ function calculateMetrics(polygon: GeoJSON.Polygon): { areaM2: number; dimension
   const depth = (maxLat - minLat) * 111320;
 
   return { areaM2, dimensions: { width: Math.round(width), depth: Math.round(depth) } };
+}
+
+function calculateFrontView(
+  polygon: GeoJSON.Polygon
+): { center: [number, number]; bearing: number } {
+  // Get bounding box center of the polygon
+  const coords = polygon.coordinates[0];
+  let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  for (const coord of coords) {
+    minLng = Math.min(minLng, coord[0]);
+    maxLng = Math.max(maxLng, coord[0]);
+    minLat = Math.min(minLat, coord[1]);
+    maxLat = Math.max(maxLat, coord[1]);
+  }
+  const centerLng = (minLng + maxLng) / 2;
+  const centerLat = (minLat + maxLat) / 2;
+
+  // Position camera to the SOUTH, looking NORTH at the building
+  // Offset ~200m south for a good top-down angled view
+  const offset = 0.002;
+  return {
+    center: [centerLng, centerLat - offset],
+    bearing: 0  // Facing north
+  };
 }
 
 export default function MapPage() {
@@ -426,16 +452,34 @@ export default function MapPage() {
         if (result.delete_target) {
           const geometry = result.delete_target.geometry;
           if (geometry && geometry.type === "Polygon") {
-            // Add to deleted features
-            setDeletedFeatures((prev) => [...prev, result.delete_target as GeoJSON.Feature<GeoJSON.Polygon>]);
+            const newFeature = result.delete_target as GeoJSON.Feature<GeoJSON.Polygon>;
+
+            // Update React state and directly update map source
+            setDeletedFeatures((prev) => {
+              const newFeatures = [...prev, newFeature];
+              // Directly update map source (don't rely on useEffect timing)
+              updateDeletedAreasSource(newFeatures);
+              return newFeatures;
+            });
           }
         }
-        // Fly to location if provided
-        if (result.should_fly_to && result.coordinates) {
+        // Fly to front view of deleted building (top-down angled view from south)
+        if (result.should_fly_to && result.delete_target?.geometry?.type === "Polygon") {
+          const frontView = calculateFrontView(result.delete_target.geometry as GeoJSON.Polygon);
+          map.current.flyTo({
+            center: frontView.center,
+            zoom: result.zoom_level || 17,
+            pitch: 45,
+            bearing: frontView.bearing,
+            duration: 1500,
+          });
+        } else if (result.should_fly_to && result.coordinates) {
+          // Fallback if no polygon available
           map.current.flyTo({
             center: result.coordinates as [number, number],
-            zoom: result.zoom_level || 18,
-            pitch: 60,
+            zoom: result.zoom_level || 17,
+            pitch: 45,
+            bearing: 0,
             duration: 1500,
           });
         }
@@ -465,7 +509,7 @@ export default function MapPage() {
           });
         }
     }
-  }, [setWeather, setLightMode, setDeletedFeatures]);
+  }, [setWeather, setLightMode, setDeletedFeatures, updateDeletedAreasSource]);
 
   // Handle search
   const handleSearch = useCallback(async () => {
@@ -963,10 +1007,10 @@ export default function MapPage() {
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/standard",
         projection: { name: "globe" },
-        center: [-122.4194, 37.7749], // San Francisco
-        zoom: 15.5,
-        pitch: 60,
-        bearing: -17.6,
+        center: [-100, 40], // Globe view - North America
+        zoom: 1.5,
+        pitch: 0,
+        bearing: 0,
       });
 
       // Initialize MapboxDraw
@@ -1250,6 +1294,24 @@ export default function MapPage() {
 
   return (
     <div className="relative h-screen w-full">
+      {/* Home icon - top left */}
+      <Link
+        href="/"
+        className="absolute top-4 left-4 z-10 p-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-black/60 transition-all"
+      >
+        <HomeIcon width={20} height={20} />
+      </Link>
+
+      {/* GitHub icon - top right */}
+      <a
+        href="https://github.com/jli2007/delta"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute top-4 right-4 z-10 p-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-black/60 transition-all"
+      >
+        <GitHubLogoIcon width={20} height={20} />
+      </a>
+
       <Toolbar
         activeTool={activeTool}
         setActiveTool={handleSetActiveTool}

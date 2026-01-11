@@ -166,6 +166,9 @@ async def fetch_buildings_in_bbox(bbox: dict, include_towers: bool = False) -> l
           way["tourism"="attraction"]["height"]({south},{west},{north},{east});
           node["man_made"="tower"]({south},{west},{north},{east});
           node["tourism"="attraction"]["height"]({south},{west},{north},{east});
+          relation["building"]({south},{west},{north},{east});
+          relation["man_made"="tower"]({south},{west},{north},{east});
+          relation["tourism"="attraction"]({south},{west},{north},{east});
         );
         out geom;
         """
@@ -237,9 +240,25 @@ async def fetch_buildings_in_bbox(bbox: dict, include_towers: bool = False) -> l
             buildings.append(building_feature)
         elif elem.get("type") == "node" and "lat" in elem and "lon" in elem:
             # Handle point features (like towers represented as nodes)
-            # Create a small polygon around the point for consistent handling
+            # Create a polygon around the point sized based on structure type
             lat, lon = elem["lat"], elem["lon"]
-            offset = 0.0001  # ~10m offset to create a small square
+            tags = elem.get("tags", {})
+
+            # Determine polygon size based on structure type and height
+            # Famous towers need larger polygons to match their 3D model footprint
+            height = tags.get("height", "")
+            is_tower = tags.get("man_made") == "tower" or tags.get("tourism") == "attraction"
+
+            if is_tower:
+                # Towers typically have larger 3D models - use ~80m radius
+                offset = 0.0008
+            elif height and float(height.replace("m", "").replace(" ", "") or 0) > 100:
+                # Tall structures (>100m) need larger polygons
+                offset = 0.0006
+            else:
+                # Regular structures - ~30m radius
+                offset = 0.0003
+
             coords = [
                 [lon - offset, lat - offset],
                 [lon + offset, lat - offset],
@@ -254,9 +273,60 @@ async def fetch_buildings_in_bbox(bbox: dict, include_towers: bool = False) -> l
                     "type": "Polygon",
                     "coordinates": [coords]
                 },
-                "properties": elem.get("tags", {})
+                "properties": tags
             }
             buildings.append(building_feature)
+        elif elem.get("type") == "relation":
+            # Handle relation elements (complex structures like CN Tower)
+            # Extract outer way members to form the polygon
+            members = elem.get("members", [])
+            tags = elem.get("tags", {})
+
+            # Find outer way members with geometry
+            outer_coords = []
+            for member in members:
+                if member.get("role") == "outer" and member.get("type") == "way":
+                    geometry = member.get("geometry", [])
+                    if geometry:
+                        way_coords = [[p["lon"], p["lat"]] for p in geometry]
+                        outer_coords.extend(way_coords)
+
+            if len(outer_coords) >= 3:
+                # Close polygon if not already closed
+                if outer_coords[0] != outer_coords[-1]:
+                    outer_coords.append(outer_coords[0])
+
+                building_feature = {
+                    "type": "Feature",
+                    "id": elem.get("id"),
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [outer_coords]
+                    },
+                    "properties": tags
+                }
+                buildings.append(building_feature)
+            elif members:
+                # Fallback: if no outer geometry, create polygon from bounds
+                # or use first member with geometry
+                for member in members:
+                    if member.get("geometry"):
+                        geometry = member.get("geometry", [])
+                        if len(geometry) >= 3:
+                            coords = [[p["lon"], p["lat"]] for p in geometry]
+                            if coords[0] != coords[-1]:
+                                coords.append(coords[0])
+                            building_feature = {
+                                "type": "Feature",
+                                "id": elem.get("id"),
+                                "geometry": {
+                                    "type": "Polygon",
+                                    "coordinates": [coords]
+                                },
+                                "properties": tags
+                            }
+                            buildings.append(building_feature)
+                            break
 
     return buildings
 
@@ -359,36 +429,51 @@ async def agentic_search(request: SearchRequest):
                 # Geocode the location to find the building
                 location = await geocoding_svc.geocode(location_query)
                 if location:
-                    # Fetch building at location
-                    bbox = expand_bbox_from_center([location.lon, location.lat], 0.2)
-                    buildings = await fetch_buildings_in_bbox(bbox, include_towers=True)
+                    # Create a bounding rectangle around the geocoded location
+                    # This is more reliable than OSM polygon data for 3D model deletion
+                    lat, lon = location.lat, location.lon
 
-                    if buildings:
-                        # Find best matching building (first one for now)
-                        target = buildings[0]
-                        target_center = get_building_center(target)
-                        return {
-                            "intent": intent,
-                            "action": "delete_building",
-                            "answer": f"Deleting building at {location.display_name}...",
-                            "coordinates": target_center,
-                            "target": None,
-                            "delete_target": target,
-                            "candidates": [],
-                            "should_fly_to": True,
-                            "zoom_level": 18
-                        }
+                    # Size the rectangle based on building type
+                    # Towers are tall but narrow - use smaller footprint
+                    towers = ["cn tower", "eiffel tower", "empire state", "burj khalifa", "tokyo tower", "space needle"]
+                    # Stadiums/large buildings need bigger footprint
+                    large_buildings = ["rogers centre", "skydome", "stadium", "arena", "convention"]
+
+                    query_lower = location_query.lower()
+                    if any(t in query_lower for t in towers):
+                        offset = 0.0004  # ~40m for towers (narrow footprint)
+                    elif any(b in query_lower for b in large_buildings):
+                        offset = 0.0012  # ~120m for stadiums
                     else:
-                        return {
-                            "intent": intent,
-                            "action": "delete_building",
-                            "answer": f"No buildings found at {location_query}.",
-                            "coordinates": [location.lon, location.lat],
-                            "target": None,
-                            "candidates": [],
-                            "should_fly_to": True,
-                            "zoom_level": 17
-                        }
+                        offset = 0.0006  # ~60m default
+
+                    # Create rectangle polygon around the location
+                    delete_polygon = {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [[
+                                [lon - offset, lat - offset],
+                                [lon + offset, lat - offset],
+                                [lon + offset, lat + offset],
+                                [lon - offset, lat + offset],
+                                [lon - offset, lat - offset]
+                            ]]
+                        },
+                        "properties": {"name": location_query}
+                    }
+
+                    return {
+                        "intent": intent,
+                        "action": "delete_building",
+                        "answer": f"Deleting {location_query}...",
+                        "coordinates": [lon, lat],
+                        "target": None,
+                        "delete_target": delete_polygon,
+                        "candidates": [],
+                        "should_fly_to": True,
+                        "zoom_level": 17
+                    }
                 else:
                     return {
                         "intent": intent,
