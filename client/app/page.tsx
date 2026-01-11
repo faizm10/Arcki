@@ -598,8 +598,50 @@ export default function Home() {
           </div>
         </div>
       </section>
- {/* Features Section 2 - Mapbox Demo */}
- <section id="ai-powered" data-section-id="2" className="relative bg-white min-h-screen flex items-center py-32">
+
+      {/* About Section */}
+      <section id="about" data-section-id="2" className="relative bg-gray-50 min-h-screen flex items-center py-32">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <div className="inline-block px-4 py-2 rounded-full bg-black text-white text-xs font-semibold uppercase tracking-wider mb-6">
+                About
+              </div>
+              <h2 className="text-5xl md:text-6xl font-bold mb-6 text-black leading-tight">
+                Transforming Urban Planning
+              </h2>
+            </div>
+
+            <div className="prose prose-lg max-w-none">
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+                Arcki is a comprehensive platform for real-time city editing and architectural visualization. Built on advanced 3D mapping technology, we enable urban planners, architects, and developers to visualize, modify, and plan city infrastructure with unprecedented precision.
+              </p>
+
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Our platform combines photorealistic 3D mapping with intelligent AI-powered tools, allowing professionals to generate building designs, modify existing structures, and explore urban development scenarios in real-time. Every change is rendered instantly, providing immediate visual feedback for informed decision-making.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-12 mt-16">
+                <div>
+                  <h3 className="text-2xl font-bold mb-4 text-black">Mission</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    To democratize access to professional-grade urban planning tools, making sophisticated 3D city modeling accessible to professionals and organizations of all sizes.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-4 text-black">Technology</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Powered by Mapbox's advanced 3D rendering engine and integrated AI services, our platform delivers enterprise-level capabilities with intuitive, user-friendly interfaces.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section 2 - Mapbox Demo */}
+      <section id="ai-powered" data-section-id="3" className="relative bg-white min-h-screen flex items-center py-32">
         <div className="container mx-auto px-6 max-w-6xl">
           {/* Header Section */}
           <div className="text-center mb-16">
@@ -669,14 +711,15 @@ export default function Home() {
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">arc-ke.tech</h3>
+              <h3 className="text-lg font-semibold mb-4">arcki.tech</h3>
               <p className="text-gray-400 text-sm">Real-time City Editor</p>
             </div>
             <div>
               <h4 className="text-sm font-semibold mb-4 uppercase tracking-wider">Navigation</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="#hero" className="hover:text-white transition-colors">Home</a></li>
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#ai-powered" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#about" className="hover:text-white transition-colors">About</a></li>
                 <li><a href="/map" className="hover:text-white transition-colors">Map</a></li>
               </ul>
             </div>
