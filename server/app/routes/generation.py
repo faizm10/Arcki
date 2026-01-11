@@ -334,6 +334,7 @@ async def generate_preview(request: PreviewRequest):
             cleaned_prompt=clean_result.cleaned_prompt,
             dalle_prompt=clean_result.dalle_prompt,
             image_urls=image_result.images,
+            preview_3d_url=image_result.preview_3d_url,
             message="2D images ready! Click Finish to generate 3D model."
         )
 

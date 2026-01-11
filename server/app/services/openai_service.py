@@ -60,33 +60,49 @@ Be concise (1-2 sentences max). Include key facts when available:
 If no results were found, provide a helpful message."""
 
     STYLE_CONTEXTS = {
-        "architectural": "Flat 2D elevation profile, light cream/white colors, no shadows, clean silhouette",
-        "modern": "Flat 2D profile, minimalist cubic forms, solid light colors, no shading",
-        "classical": "Flat 2D elevation, symmetrical profile, light beige/cream, no shadows",
-        "futuristic": "Flat 2D profile, smooth curves, bright white/light gray, no shading",
+        "architectural": "Black and white line drawing, clean lines only",
+        "modern": "Black and white line drawing, minimalist clean lines",
+        "classical": "Black and white line drawing, detailed clean lines",
+        "futuristic": "Black and white line drawing, sleek clean lines",
     }
 
-    SYSTEM_PROMPT = """You are an expert at creating prompts for 3D model generation from 2D profile images.
-Your job is to take a user's description of a building and create prompts for FLAT 2D PROFILE/ELEVATION views.
+    SYSTEM_PROMPT = """You create simple line drawing prompts for DALL-E.
 
-CRITICAL RULES for the DALL-E prompt:
-- Generate FLAT 2D PROFILE/ELEVATION views - NOT 3D perspective renders
-- Use BRIGHT, LIGHT COLORS - cream, white, beige, light gray, pastel colors (NEVER dark or black)
-- ABSOLUTELY NO SHADOWS - completely flat lighting, no shading whatsoever
-- Use SOLID FLAT COLORS - no gradients, no reflections, no transparency
-- Request SIMPLE CLEAN GEOMETRIC shapes with clear edges
-- Specify PURE WHITE background - completely blank, no environment
-- Ask for a SINGLE ISOLATED BUILDING PROFILE - like a silhouette or cutout
-- Style should be like an ARCHITECTURAL ELEVATION DRAWING or technical diagram
-- AVOID: shadows, shading, dark colors, 3D perspective, reflections, complex textures
+RULES:
+- BLACK AND WHITE LINE DRAWING ONLY
+- Just black lines on pure white background
+- NO shading, NO gradients, NO gray, NO colors
+- Clean simple lines showing the building shape
+- NO TEXT or words in the image
+- Like an architectural line sketch
 
-Example format: "Flat 2D architectural elevation profile of a [building], front view, light cream/white colored, solid flat colors, absolutely no shadows, pure white background, clean geometric silhouette, like a technical elevation drawing"
+Example: "Black and white line drawing of a [building], clean black lines only, pure white background, no shading, no text, simple sketch"
+
+Respond in JSON:
+{
+    "cleaned_prompt": "Simple description",
+    "dalle_prompt": "Black and white line drawing, no shading, no text",
+    "style_tags": ["line drawing", "black and white", "sketch"]
+}"""
+
+    SYSTEM_PROMPT_3D_PREVIEW = """You are an expert at creating prompts for 3D architectural visualization renders.
+Your job is to take a user's description and create a prompt for a beautiful 3D PERSPECTIVE RENDER of the building.
+
+CRITICAL RULES for the 3D preview prompt:
+- Generate a BEAUTIFUL 3D PERSPECTIVE RENDER - like a professional architectural visualization
+- Show the building from a dramatic 3/4 angle view
+- Use REALISTIC MATERIALS and COLORS - real building materials like glass, steel, brick, concrete
+- Include SOFT NATURAL LIGHTING - golden hour or soft daylight
+- Add SUBTLE SHADOWS for depth and realism
+- Show the building in a MINIMAL CONTEXT - simple ground plane, maybe subtle sky gradient
+- Make it look PHOTOREALISTIC and PROFESSIONAL
+- This is for USER PREVIEW ONLY - to help them visualize the final 3D model
+
+Example format: "Professional 3D architectural render of a [building], dramatic 3/4 perspective view, photorealistic materials, soft golden hour lighting, subtle shadows, minimal environment, architectural visualization quality"
 
 Respond in JSON format:
 {
-    "cleaned_prompt": "Clear description of the building",
-    "dalle_prompt": "Flat 2D profile/elevation prompt following the rules above",
-    "style_tags": ["flat", "profile", "elevation", etc.]
+    "preview_prompt": "3D perspective render prompt following the rules above"
 }"""
 
     def __init__(self):
@@ -147,7 +163,8 @@ Respond in JSON format:
         num_images: int = 1,
         size: str = "1024x1024",
         quality: str = "hd",
-        style: str = "natural"
+        style: str = "natural",
+        include_3d_preview: bool = True
     ) -> ImageGenerateResponse:
         """
         Generate architectural images with DALL-E 3.
@@ -158,25 +175,24 @@ Respond in JSON format:
             size: Image size
             quality: standard or hd
             style: natural or vivid
+            include_3d_preview: Whether to also generate a 3D preview render
 
         Returns:
-            ImageGenerateResponse with image URLs
+            ImageGenerateResponse with image URLs and optional 3D preview
         """
         if not self._client:
             raise RuntimeError("OpenAI not configured. Set OPENAI_API_KEY.")
 
-        # Always add flat 2D profile prefix for consistent 3D-friendly output
-        flat_prefix = "Flat 2D architectural elevation profile, absolutely no shadows, no shading, solid flat colors, white/cream/beige colored, pure white background, "
-        flat_prompt = f"{flat_prefix}{prompt}"
+        # Black and white line drawing - clean lines only, no shading
+        line_prefix = "Black and white line drawing, clean black lines only, pure white background, no shading, no gradients, no gray, no text, simple sketch, "
+        line_prompt = f"{line_prefix}{prompt}"
         
-        # Create view variations for multi-view - all flat profile views from different angles
+        # Specific views: front, side, top, isometric
         view_prompts = [
-            f"{flat_prompt}, front elevation view",
-            f"{flat_prefix}{prompt}, side elevation profile view",
-            f"{flat_prefix}{prompt}, rear elevation view",
-            f"{flat_prefix}{prompt}, opposite side elevation profile view",
-            f"{flat_prefix}{prompt}, bird's eye view from directly above",
-            f"{flat_prefix}{prompt}, 45 degree angled elevation view"
+            f"{line_prompt}, front view",
+            f"{line_prefix}{prompt}, side view",
+            f"{line_prefix}{prompt}, top down view",
+            f"{line_prefix}{prompt}, isometric view"
         ][:num_images]
 
         # Generate all images in parallel instead of sequentially
@@ -194,10 +210,67 @@ Respond in JSON format:
         # Run all image generations concurrently
         images = await asyncio.gather(*[generate_single_image(p) for p in view_prompts])
 
+        # Generate 3D preview image (separate from the flat elevation images)
+        preview_3d_url = None
+        if include_3d_preview:
+            preview_3d_url = await self._generate_3d_preview(prompt, size, quality)
+
         return ImageGenerateResponse(
             images=list(images),
-            prompt_used=prompt
+            prompt_used=prompt,
+            preview_3d_url=preview_3d_url
         )
+
+    async def _generate_3d_preview(
+        self,
+        prompt: str,
+        size: str = "1024x1024",
+        quality: str = "hd"
+    ) -> str:
+        """
+        Generate a 3D perspective preview render for user visualization.
+        This is NOT used for Trellis 3D generation - just for user preview.
+
+        Args:
+            prompt: Building description
+            size: Image size
+            quality: standard or hd
+
+        Returns:
+            URL to the 3D preview image
+        """
+        if not self._client:
+            raise RuntimeError("OpenAI not configured. Set OPENAI_API_KEY.")
+
+        try:
+            # Get optimized 3D preview prompt from GPT
+            gpt_response = await self._client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": self.SYSTEM_PROMPT_3D_PREVIEW},
+                    {"role": "user", "content": f"Create a 3D preview prompt for: {prompt}"}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.5,
+                max_tokens=300
+            )
+
+            result = json.loads(gpt_response.choices[0].message.content)
+            preview_prompt = result.get("preview_prompt", f"Professional 3D architectural render of {prompt}, dramatic perspective view, photorealistic")
+
+            # Generate the 3D preview image
+            response = await self._client.images.generate(
+                model="dall-e-3",
+                prompt=preview_prompt,
+                size=size,
+                quality=quality,
+                style="vivid",  # Use vivid for more dramatic 3D renders
+                n=1
+            )
+            return response.data[0].url
+        except Exception as e:
+            print(f"Failed to generate 3D preview: {e}")
+            return None
 
     async def parse_search_intent(self, query: str) -> dict:
         """

@@ -29,6 +29,7 @@ interface PreviewResult {
   cleaned_prompt: string;
   dalle_prompt: string;
   image_urls: string[];
+  preview_3d_url?: string;  // 3D perspective preview for user visualization
 }
 
 interface ThreeDJobResult {
@@ -746,6 +747,37 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                   ))}
                 </div>
               </div>
+
+              {/* 3D Preview Image (for user visualization - not used for Trellis) */}
+              {previewResult.preview_3d_url && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-white/70 text-sm font-medium flex items-center gap-2">
+                      <CubeIcon className="w-4 h-4" />
+                      3D Preview
+                      <span className="text-white/40 text-xs font-normal">(visualization only)</span>
+                    </label>
+                  </div>
+                  <button
+                    onClick={() => window.open(previewResult.preview_3d_url, '_blank')}
+                    className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-all hover:scale-[1.01]"
+                  >
+                    <img
+                      src={previewResult.preview_3d_url}
+                      alt="3D Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                      <span className="text-white/80 text-xs font-medium">3D Perspective Render</span>
+                      <span className="px-2 py-0.5 rounded bg-white/20 text-white/70 text-[10px]">Click to expand</span>
+                    </div>
+                  </button>
+                  <p className="text-white/40 text-xs text-center">
+                    This is a preview of how your model might look. The actual 3D model is generated from the elevation views above.
+                  </p>
+                </div>
+              )}
 
               {/* Prompt Info */}
               <div className="p-3 rounded-lg bg-white/5 border border-white/10">

@@ -40,6 +40,7 @@ class ImageGenerateResponse(BaseModel):
     """Response with generated image URLs."""
     images: list[str]
     prompt_used: str
+    preview_3d_url: Optional[str] = None  # 3D perspective preview for user visualization (not used for Trellis)
 
 
 # =============================================================================
@@ -148,6 +149,7 @@ class PreviewResponse(BaseModel):
     cleaned_prompt: str
     dalle_prompt: str
     image_urls: list[str]
+    preview_3d_url: Optional[str] = None  # 3D perspective preview for user visualization (not used for Trellis)
     message: str
 
 
