@@ -43,16 +43,14 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 <span className="text-[10px] font-medium">Select</span>
               </button>
             </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content
-                className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
-                side="bottom"
-                sideOffset={5}
-              >
-                Select buildings to view details
-                <Tooltip.Arrow className="fill-white/10" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
+            <Tooltip.Content
+              className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
+              side="bottom"
+              sideOffset={5}
+            >
+              Select buildings to view details
+              <Tooltip.Arrow className="fill-white/10" />
+            </Tooltip.Content>
           </Tooltip.Root>
 
           <Tooltip.Root>
@@ -69,16 +67,14 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 <span className="text-[10px] font-medium">Delete</span>
               </button>
             </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content
-                className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
-                side="bottom"
-                sideOffset={5}
-              >
-                Draw an area to remove buildings
-                <Tooltip.Arrow className="fill-white/10" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
+            <Tooltip.Content
+              className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
+              side="bottom"
+              sideOffset={5}
+            >
+              Draw an area to remove buildings
+              <Tooltip.Arrow className="fill-white/10" />
+            </Tooltip.Content>
           </Tooltip.Root>
 
           <Tooltip.Root>
@@ -95,16 +91,14 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 <span className="text-[10px] font-medium">Insert</span>
               </button>
             </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content
-                className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
-                side="bottom"
-                sideOffset={5}
-              >
-                Insert custom 3D models
-                <Tooltip.Arrow className="fill-white/10" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
+            <Tooltip.Content
+              className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
+              side="bottom"
+              sideOffset={5}
+            >
+              Insert custom 3D models
+              <Tooltip.Arrow className="fill-white/10" />
+            </Tooltip.Content>
           </Tooltip.Root>
 
           <Tooltip.Root>
@@ -121,16 +115,14 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 <span className="text-[10px] font-medium">Generate</span>
               </button>
             </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content
-                className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
-                side="bottom"
-                sideOffset={5}
-              >
-                Generate 3D objects from prompts
-                <Tooltip.Arrow className="fill-white/10" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
+            <Tooltip.Content
+              className="select-none rounded-lg bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 text-sm font-medium text-white shadow-xl z-50"
+              side="bottom"
+              sideOffset={5}
+            >
+              Generate 3D objects from prompts
+              <Tooltip.Arrow className="fill-white/10" />
+            </Tooltip.Content>
           </Tooltip.Root>
         </div>
       </div>
