@@ -136,11 +136,86 @@ export default function Home() {
   const globeScale = useTransform(scrollYProgress, [0, 0.4, 0.7, 1], [1, 1.05, 0.95, 1.02]);
   const globeOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.85, 0.7]);
 
+  // Stars parallax - organic, non-linear movement
+  const starsY = useTransform(scrollYProgress, [0, 0.2, 0.4, 0.6, 0.8, 1], ["0%", "8%", "5%", "18%", "12%", "25%"]);
+  const starsX = useTransform(scrollYProgress, [0, 0.15, 0.35, 0.55, 0.75, 1], ["0%", "-3%", "5%", "-8%", "2%", "-12%"]);
+
+  // Second layer moves differently for depth
+  const stars2Y = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], ["0%", "-5%", "10%", "3%", "20%"]);
+  const stars2X = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], ["0%", "6%", "-4%", "8%"]);
+
   return (
     <div ref={containerRef} className="bg-black text-white relative">
+      {/* Stars layer 1 - slower pulse */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none z-[2]"
+        style={{ y: starsY, x: starsX }}
+        animate={{ opacity: [0.6, 0.45, 0.6] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(2.5px 2.5px at 3% 8%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 12% 22%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 7% 48%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 18% 72%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 5% 91%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 28% 5%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 35% 33%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 42% 58%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 31% 85%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 52% 12%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 58% 41%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 48% 68%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 55% 94%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 68% 18%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 75% 52%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 72% 78%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 85% 6%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 91% 29%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 88% 55%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 95% 82%, rgba(255,255,255,0.55), transparent)
+            `,
+          }}
+        />
+      </motion.div>
+
+      {/* Stars layer 2 - faster pulse, offset timing */}
+      <motion.div
+        className="fixed inset-0 pointer-events-none z-[2]"
+        style={{ y: stars2Y, x: stars2X }}
+        animate={{ opacity: [0.55, 0.65, 0.55] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(2px 2px at 9% 15%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 16% 38%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 11% 62%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 22% 88%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 38% 11%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 45% 45%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 33% 71%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 62% 25%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 66% 62%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 59% 88%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 78% 8%, rgba(255,255,255,0.55), transparent),
+              radial-gradient(2.5px 2.5px at 82% 42%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 79% 72%, rgba(255,255,255,0.6), transparent),
+              radial-gradient(2.5px 2.5px at 93% 48%, rgba(255,255,255,0.7), transparent),
+              radial-gradient(2px 2px at 97% 75%, rgba(255,255,255,0.55), transparent)
+            `,
+          }}
+        />
+      </motion.div>
+
       {/* Fixed Globe Background */}
       <motion.div
-        className="fixed inset-0 z-0 pointer-events-auto"
+        className="fixed inset-0 z-[1] pointer-events-auto"
         style={{
           x: globeX,
           y: globeY,
