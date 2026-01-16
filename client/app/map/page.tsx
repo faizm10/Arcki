@@ -19,6 +19,7 @@ import { SearchResultPopup } from "@/components/SearchResultPopup";
 import { MapControls } from "@/components/MapControls";
 import { GitHubLogoIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { BugReportModal } from "@/components/BugReportModal";
+import { Tutorial, shouldShowTutorial } from "@/components/Tutorial";
 
 interface SelectedBuilding {
   id: string | number;
@@ -141,6 +142,18 @@ export default function MapPage() {
   const [previewPosition, setPreviewPosition] = useState<[number, number] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [showBugReportModal, setShowBugReportModal] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Show tutorial on first visit
+  useEffect(() => {
+    if (shouldShowTutorial()) {
+      // Small delay to let map load
+      const timer = setTimeout(() => {
+        setShowTutorial(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
   const [searchResult, setSearchResult] = useState<{
     intent: {
       action: string;
@@ -1587,6 +1600,12 @@ export default function MapPage() {
       {showBugReportModal && (
         <BugReportModal onClose={() => setShowBugReportModal(false)} />
       )}
+      {showTutorial && (
+        <Tutorial
+          onComplete={() => setShowTutorial(false)}
+          onSkip={() => setShowTutorial(false)}
+        />
+      )}
       {isPlacingModel && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-white text-sm">
           Click on the map to place your model
@@ -1703,6 +1722,7 @@ export default function MapPage() {
 
       {/* Search Bar */}
       <div
+        data-tutorial="search-bar"
         data-search-container
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-[500px] rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-xl px-4 py-2"
       >

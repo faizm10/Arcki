@@ -32,6 +32,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
               <button
+                data-tutorial="toolbar-select"
                 onClick={() => handleToolSelect("select")}
                 className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-all w-14 ${
                   activeTool === "select"
@@ -58,6 +59,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
               <button
+                data-tutorial="toolbar-delete"
                 onClick={() => handleToolSelect("draw")}
                 className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-all w-14 ${
                   activeTool === "draw"
@@ -84,6 +86,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
               <button
+                data-tutorial="toolbar-insert"
                 onClick={() => handleToolSelect("insert")}
                 className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-all w-14 ${
                   activeTool === "insert"
@@ -110,6 +113,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
               <button
+                data-tutorial="toolbar-generate"
                 onClick={handleGenerateClick}
                 className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-all w-14 ${
                   showPromptGenerator
