@@ -327,8 +327,7 @@ Respond in JSON format:
                 n=1
             )
             return response.data[0].url
-        except Exception as e:
-            print(f"Failed to generate 3D preview: {e}")
+        except Exception:
             return None
 
     async def parse_search_intent(self, query: str) -> dict:
@@ -361,8 +360,7 @@ Respond in JSON format:
             if content is None:
                 raise RuntimeError("No content in OpenAI response")
             return json.loads(content)
-        except Exception as e:
-            print(f"OpenAI intent parsing error: {e}")
+        except Exception:
             return self._fallback_intent_parse(query)
 
     def _fallback_intent_parse(self, query: str) -> dict:
@@ -457,8 +455,7 @@ Intent: {json.dumps(intent) if intent else 'unknown'}"""
 
             content = response.choices[0].message.content
             return content if content is not None else ""
-        except Exception as e:
-            print(f"OpenAI answer generation error: {e}")
+        except Exception:
             return self._fallback_answer_generation(query, top_result, location_name, intent)
 
     def _fallback_answer_generation(

@@ -409,9 +409,7 @@ export default function MapPage() {
   // Show pin marker at coordinates
   const showSearchPin = useCallback((coordinates: [number, number]) => {
     if (!map.current) return;
-    
-    console.log("Showing search pin at:", coordinates);
-    
+
     // Remove existing pin
     if (searchPinRef.current) {
       searchPinRef.current.remove();
@@ -483,8 +481,6 @@ export default function MapPage() {
     })
       .setLngLat(coordinates)
       .addTo(map.current);
-      
-    console.log("Search pin added successfully");
   }, []);
 
   // Hide search pin

@@ -7,11 +7,9 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
-    # API Keys
     openai_api_key: str = ""
     fal_key: str = ""
 
-    # Server
     host: str = "0.0.0.0"
     port: int = int(os.environ.get("PORT", 8000))
     debug: bool = False
@@ -19,12 +17,10 @@ class Settings(BaseSettings):
     # Redis (optional - falls back to in-memory if not set)
     redis_url: str = ""
 
-    # Directories
     upload_dir: Path = Path("uploads")
     output_dir: Path = Path("outputs")
     cache_dir: Path = Path("cache")
 
-    # CORS
     cors_origins: list[str] = [
         "http://localhost:3000",
         "http://localhost:3001",
