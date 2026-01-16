@@ -75,7 +75,18 @@ export default function LandingGlobe() {
       0.1,
       1000
     );
-    camera.position.set(0, 0.3, 4.5);
+
+    // Adjust camera distance based on screen width for mobile compatibility
+    const getCameraZ = () => {
+      const width = window.innerWidth;
+      if (width < 400) return 9.0;  // Small mobile - zoom out significantly
+      if (width < 480) return 8.0;  // Mobile
+      if (width < 768) return 7.0;  // Larger mobile/small tablet
+      if (width < 1024) return 5.5; // Tablet
+      return 4.5;                   // Desktop
+    };
+
+    camera.position.set(0, 0.3, getCameraZ());
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -176,8 +187,33 @@ export default function LandingGlobe() {
       }
     }
 
+    // Touch event handlers for mobile
+    function onTouchStart(evt: TouchEvent) {
+      if (evt.touches.length === 1) {
+        isDragging = true;
+        previousMousePosition = { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+      }
+    }
+
+    function onTouchMove(evt: TouchEvent) {
+      if (isDragging && evt.touches.length === 1) {
+        const deltaX = evt.touches[0].clientX - previousMousePosition.x;
+        const deltaY = evt.touches[0].clientY - previousMousePosition.y;
+
+        globeGroup.rotation.y += deltaX * rotationSpeed;
+        globeGroup.rotation.x += deltaY * rotationSpeed;
+
+        previousMousePosition = { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+      }
+    }
+
+    function onTouchEnd() {
+      isDragging = false;
+    }
+
     function onResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
+      camera.position.z = getCameraZ();
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
@@ -189,12 +225,18 @@ export default function LandingGlobe() {
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("touchstart", onTouchStart);
+    window.addEventListener("touchmove", onTouchMove);
+    window.addEventListener("touchend", onTouchEnd);
     window.addEventListener("resize", onResize);
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("resize", onResize);
 
       const mount = mountRef.current;

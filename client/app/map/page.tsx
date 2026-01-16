@@ -1725,7 +1725,7 @@ export default function MapPage() {
       <div
         data-tutorial="search-bar"
         data-search-container
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-[500px] rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-xl px-4 py-2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-[min(500px,90vw)] lg:w-[500px] xl:w-[550px] 2xl:w-[600px] rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-xl px-4 py-2"
       >
         <SearchBar
           value={searchQuery}

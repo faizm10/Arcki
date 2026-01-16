@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "motion/react";
@@ -17,6 +18,8 @@ import {
   Wand2,
   Play,
 } from "lucide-react";
+import { MobileWarningModal } from "@/components/MobileWarningModal";
+import { useMobileCheck } from "@/hooks/useMobileCheck";
 
 const LandingGlobe = dynamic(() => import("@/components/LandingGlobe"), {
   ssr: false,
@@ -125,14 +128,31 @@ const faqs = [
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const isMobile = useMobileCheck();
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
+
+  const handleMapNavigation = () => {
+    if (isMobile) {
+      setShowMobileWarning(true);
+    } else {
+      router.push("/map");
+    }
+  };
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
 
   // Interpolate globe position based on scroll - organic, less predictable movement
+  // Use reduced horizontal movement that works on all screen sizes to prevent globe cutoff
   const globeY = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], ["0%", "10%", "5%", "15%"]);
-  const globeX = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], ["0%", "40%", "-35%", "45%", "-20%"]);
+  const globeX = useTransform(
+    scrollYProgress,
+    [0, 0.25, 0.5, 0.75, 1],
+    ["0%", "10%", "-8%", "12%", "-5%"]
+  );
   const globeScale = useTransform(scrollYProgress, [0, 0.4, 0.7, 1], [1, 1.05, 0.95, 1.02]);
   const globeOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.85, 0.7]);
 
@@ -250,10 +270,10 @@ export default function Home() {
           </p>
           <Button
             size="lg"
-              className="bg-white hover:bg-white/90 text-black font-semibold px-8 sm:px-10 py-5 sm:py-6 rounded-full shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20 transition-all duration-300 text-base sm:text-lg"
-            asChild
+            className="bg-white hover:bg-white/90 text-black font-semibold px-8 sm:px-10 py-5 sm:py-6 rounded-full shadow-lg shadow-white/10 hover:shadow-xl hover:shadow-white/20 transition-all duration-300 text-base sm:text-lg"
+            onClick={handleMapNavigation}
           >
-            <a href="/map">Start Building</a>
+            Start Building
           </Button>
           </motion.div>
         </div>
@@ -393,12 +413,10 @@ export default function Home() {
           <Button
             size="lg"
             className="bg-white hover:bg-white/90 text-black font-semibold px-8 py-6 rounded-full"
-            asChild
+            onClick={handleMapNavigation}
           >
-            <a href="/map">
-              Get Started Free
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
+            Get Started Free
+            <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </motion.div>
       </section>
@@ -416,6 +434,12 @@ export default function Home() {
           </a>
         </div>
       </footer>
+
+      {/* Mobile Warning Modal */}
+      <MobileWarningModal
+        isOpen={showMobileWarning}
+        onClose={() => setShowMobileWarning(false)}
+      />
     </div>
   );
 }
