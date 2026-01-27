@@ -1,13 +1,27 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, Cross2Icon } from "@radix-ui/react-icons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  Cross2Icon,
+  CursorArrowIcon,
+  TrashIcon,
+  CubeIcon,
+  MagicWandIcon,
+  MagnifyingGlassIcon,
+  MixerVerticalIcon,
+  SunIcon,
+  RocketIcon
+} from "@radix-ui/react-icons";
 
 interface TutorialStep {
   id: string;
   title: string;
   description: string;
-  target?: string; // CSS selector for element to highlight
+  icon: React.ReactNode;
+  accent: string;
+  target?: string;
   position?: "top" | "bottom" | "left" | "right" | "center";
 }
 
@@ -20,62 +34,80 @@ const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: "welcome",
     title: "Welcome",
-    description: "Guide to main features. Skip or navigate with buttons below.",
+    description: "Let's get you started with the essentials.",
+    icon: <RocketIcon width={24} height={24} />,
+    accent: "from-violet-500 to-fuchsia-500",
     position: "center",
   },
   {
     id: "toolbar-select",
     title: "Select",
-    description: "Click buildings to view details.",
+    description: "Click any building to inspect its properties.",
+    icon: <CursorArrowIcon width={24} height={24} />,
+    accent: "from-blue-500 to-cyan-500",
     target: '[data-tutorial="toolbar-select"]',
     position: "bottom",
   },
   {
     id: "toolbar-delete",
     title: "Delete",
-    description: "Draw polygons to remove buildings.",
+    description: "Draw around buildings to remove them.",
+    icon: <TrashIcon width={24} height={24} />,
+    accent: "from-red-500 to-orange-500",
     target: '[data-tutorial="toolbar-delete"]',
     position: "bottom",
   },
   {
     id: "toolbar-insert",
     title: "Insert",
-    description: "Add 3D models from library or upload GLB files.",
+    description: "Add models from the library or upload your own.",
+    icon: <CubeIcon width={24} height={24} />,
+    accent: "from-emerald-500 to-teal-500",
     target: '[data-tutorial="toolbar-insert"]',
     position: "bottom",
   },
   {
     id: "toolbar-generate",
     title: "Generate",
-    description: "Create 3D models from text prompts.",
+    description: "Describe anything. AI builds it for you.",
+    icon: <MagicWandIcon width={24} height={24} />,
+    accent: "from-purple-500 to-pink-500",
     target: '[data-tutorial="toolbar-generate"]',
     position: "bottom",
   },
   {
     id: "search-bar",
     title: "Search",
-    description: "Search buildings by location or attributes.",
+    description: "Find places or use natural language commands.",
+    icon: <MagnifyingGlassIcon width={24} height={24} />,
+    accent: "from-amber-500 to-yellow-500",
     target: '[data-tutorial="search-bar"]',
     position: "top",
   },
   {
     id: "map-controls",
-    title: "Map Controls",
-    description: "Zoom, rotate, toggle 2D/3D view.",
+    title: "Controls",
+    description: "Zoom, rotate, and toggle 2D/3D views.",
+    icon: <MixerVerticalIcon width={24} height={24} />,
+    accent: "from-sky-500 to-blue-500",
     target: '[data-tutorial="map-controls"]',
     position: "left",
   },
   {
     id: "weather-panel",
-    title: "Lighting",
-    description: "Set time of day and weather.",
+    title: "Environment",
+    description: "Set the time of day and weather.",
+    icon: <SunIcon width={24} height={24} />,
+    accent: "from-orange-500 to-amber-500",
     target: '[data-tutorial="weather-panel"]',
     position: "right",
   },
   {
     id: "complete",
-    title: "Complete",
-    description: "Tutorial complete.",
+    title: "Ready",
+    description: "Go build something incredible.",
+    icon: <RocketIcon width={24} height={24} />,
+    accent: "from-green-500 to-emerald-500",
     position: "center",
   },
 ];
@@ -92,7 +124,6 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === TUTORIAL_STEPS.length - 1;
 
-  // Find and highlight target element
   useEffect(() => {
     if (!step.target) {
       setHighlightElement(null);
@@ -107,14 +138,12 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
         const rect = element.getBoundingClientRect();
         setHighlightRect(rect);
       } else {
-        // Retry if element not found (might be loading)
         setTimeout(findElement, 100);
       }
     };
 
     findElement();
 
-    // Update rect on scroll/resize
     const updateRect = () => {
       if (highlightElement) {
         const rect = highlightElement.getBoundingClientRect();
@@ -129,7 +158,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
       window.removeEventListener("scroll", updateRect, true);
       window.removeEventListener("resize", updateRect);
     };
-  }, [step.target, currentStep]);
+  }, [step.target, currentStep, highlightElement]);
 
   const handleNext = () => {
     if (isLastStep) {
@@ -154,7 +183,6 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     onSkip();
   };
 
-  // Calculate tooltip position
   const getTooltipPosition = () => {
     if (!highlightRect || !step.position || step.position === "center") {
       return {
@@ -165,8 +193,8 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     }
 
     const padding = 24;
-    const tooltipWidth = 400; // Approximate tooltip width
-    const tooltipHeight = 200; // Approximate tooltip height
+    const tooltipWidth = 360;
+    const tooltipHeight = 240;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
@@ -176,10 +204,8 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
 
     switch (step.position) {
       case "top":
-        // Position above the element, but check if there's enough space
         const spaceAbove = highlightRect.top;
         if (spaceAbove < tooltipHeight + padding) {
-          // Not enough space above, position below instead
           top = highlightRect.bottom + padding;
           left = Math.max(padding, Math.min(
             highlightRect.left + highlightRect.width / 2,
@@ -196,10 +222,8 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
         }
         break;
       case "bottom":
-        // Position below the element, but check if there's enough space
         const spaceBelow = viewportHeight - highlightRect.bottom;
         if (spaceBelow < tooltipHeight + padding) {
-          // Not enough space below, position above instead
           top = highlightRect.top - padding;
           left = Math.max(padding, Math.min(
             highlightRect.left + highlightRect.width / 2,
@@ -240,103 +264,139 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
 
   return (
     <>
-      {/* Dimmed overlay with cutout and blur */}
+      {/* Dark overlay with cutout */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[9998] transition-opacity duration-300 pointer-events-none bg-black/20 backdrop-blur-sm"
+        className="fixed inset-0 z-[9998] transition-all duration-500 pointer-events-none bg-black/60"
         style={highlightRect ? {
           clipPath: `polygon(
             0% 0%,
             0% 100%,
-            ${highlightRect.left}px 100%,
-            ${highlightRect.left}px ${highlightRect.top}px,
-            ${highlightRect.right}px ${highlightRect.top}px,
-            ${highlightRect.right}px ${highlightRect.bottom}px,
-            ${highlightRect.left}px ${highlightRect.bottom}px,
-            ${highlightRect.left}px 100%,
+            ${highlightRect.left - 12}px 100%,
+            ${highlightRect.left - 12}px ${highlightRect.top - 12}px,
+            ${highlightRect.right + 12}px ${highlightRect.top - 12}px,
+            ${highlightRect.right + 12}px ${highlightRect.bottom + 12}px,
+            ${highlightRect.left - 12}px ${highlightRect.bottom + 12}px,
+            ${highlightRect.left - 12}px 100%,
             100% 100%,
             100% 0%
           )`,
         } : undefined}
       />
 
-      {/* Highlight border */}
+      {/* Animated highlight ring */}
       {highlightRect && (
         <div
-          className="fixed z-[9999] pointer-events-none border-2 border-white rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+          className="fixed z-[9999] pointer-events-none rounded-2xl transition-all duration-500"
           style={{
-            top: highlightRect.top - 4,
-            left: highlightRect.left - 4,
-            width: highlightRect.width + 8,
-            height: highlightRect.height + 8,
+            top: highlightRect.top - 12,
+            left: highlightRect.left - 12,
+            width: highlightRect.width + 24,
+            height: highlightRect.height + 24,
           }}
-        />
+        >
+          {/* Gradient border */}
+          <div
+            className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${step.accent} opacity-60`}
+            style={{
+              padding: "2px",
+              WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+              WebkitMaskComposite: "xor",
+              maskComposite: "exclude",
+            }}
+          />
+          {/* Glow */}
+          <div
+            className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${step.accent} opacity-20 blur-xl`}
+          />
+        </div>
       )}
 
-      {/* Tooltip */}
+      {/* Main card */}
       <div
-        className="fixed z-[10000] max-w-[400px] bg-black/90 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-6 pointer-events-auto transition-all duration-300"
+        className="fixed z-[10000] w-[360px] pointer-events-auto transition-all duration-500"
         style={tooltipStyle}
       >
-        <div className="flex items-start gap-3 mb-4">
-          <div className="flex-1">
-            <h3 className="text-white font-semibold text-lg mb-1">{step.title}</h3>
-            <p className="text-white/70 text-sm leading-relaxed">{step.description}</p>
-          </div>
-          <button
-            onClick={handleSkip}
-            className="p-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <Cross2Icon width={18} height={18} />
-          </button>
-        </div>
+        {/* Card with gradient border */}
+        <div className="relative rounded-2xl overflow-hidden">
+          {/* Gradient border effect */}
+          <div className={`absolute inset-0 bg-gradient-to-br ${step.accent} opacity-50`} />
 
-        {/* Progress indicator */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-white transition-all duration-300 rounded-full"
-                style={{ width: `${((currentStep + 1) / TUTORIAL_STEPS.length) * 100}%` }}
-              />
+          {/* Inner card */}
+          <div className="relative m-[1px] rounded-2xl bg-black/95 backdrop-blur-xl overflow-hidden">
+            {/* Top accent line */}
+            <div className={`h-1 w-full bg-gradient-to-r ${step.accent}`} />
+
+            {/* Content */}
+            <div className="p-6">
+              {/* Icon and title row */}
+              <div className="flex items-start gap-4 mb-4">
+                <div className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${step.accent} flex items-center justify-center text-white shadow-lg`}>
+                  {step.icon}
+                </div>
+                <div className="flex-1 pt-1">
+                  <h3 className="text-white font-bold text-2xl tracking-tight font-serif italic">{step.title}</h3>
+                </div>
+                <button
+                  onClick={handleSkip}
+                  className="flex-shrink-0 p-2 -mt-1 -mr-2 rounded-lg text-white/30 hover:text-white hover:bg-white/10 transition-all"
+                >
+                  <Cross2Icon width={16} height={16} />
+                </button>
+              </div>
+
+              {/* Description */}
+              <p className="text-white/60 text-sm leading-relaxed mb-6 pl-16">
+                {step.description}
+              </p>
+
+              {/* Progress bar */}
+              <div className="mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full bg-gradient-to-r ${step.accent} transition-all duration-500 rounded-full`}
+                      style={{ width: `${((currentStep + 1) / TUTORIAL_STEPS.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-white/40 text-xs font-medium tabular-nums">
+                    {currentStep + 1}/{TUTORIAL_STEPS.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrevious}
+                  disabled={isFirstStep}
+                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-white/5 border border-white/10 text-white/40 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  <ArrowLeftIcon width={14} height={14} />
+                  Back
+                </button>
+
+                <button
+                  onClick={handleNext}
+                  className={`flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-gradient-to-r ${step.accent} text-white hover:opacity-90 transition-all text-sm font-semibold shadow-lg`}
+                >
+                  {isLastStep ? "Let's Go" : "Next"}
+                  <ArrowRightIcon width={14} height={14} />
+                </button>
+              </div>
             </div>
-            <span className="text-white/60 text-xs font-medium">
-              {currentStep + 1} / {TUTORIAL_STEPS.length}
-            </span>
           </div>
-        </div>
-
-        {/* Navigation buttons */}
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={handlePrevious}
-            disabled={isFirstStep}
-            className="flex items-center justify-center gap-2 px-4 h-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-black/60 transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium"
-          >
-            <ChevronLeftIcon width={16} height={16} />
-            Previous
-          </button>
-
-          <button
-            onClick={handleNext}
-            className="flex items-center justify-center gap-2 px-4 h-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 text-white hover:bg-black/60 transition-all text-sm font-medium"
-          >
-            {isLastStep ? "Get Started" : "Next"}
-            {!isLastStep && <ChevronRightIcon width={16} height={16} />}
-          </button>
         </div>
       </div>
     </>
   );
 }
 
-// Hook to check if tutorial should be shown
 export function shouldShowTutorial(): boolean {
   if (typeof window === "undefined") return false;
   return localStorage.getItem(STORAGE_KEY) !== "true";
 }
 
-// Function to reset tutorial (useful for testing or user preference)
 export function resetTutorial() {
   if (typeof window !== "undefined") {
     localStorage.removeItem(STORAGE_KEY);

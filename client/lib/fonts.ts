@@ -1,11 +1,15 @@
-import { Fredoka, Rubik } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 
-export const fredoka = Fredoka({
+// Clean font for body text and UI
+export const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-fredoka",
+  variable: "--font-inter",
 });
 
-export const rubik = Rubik({
+// Elegant serif for headlines and accents
+export const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-rubik",
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });

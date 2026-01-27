@@ -41,7 +41,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 }`}
               >
                 <CursorArrowIcon width={20} height={20} />
-                <span className="text-[10px] font-medium">Select</span>
+                <span className="text-xs font-medium font-serif italic">Select</span>
               </button>
             </Tooltip.Trigger>
             <Tooltip.Content
@@ -66,7 +66,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 }`}
               >
                 <Pencil2Icon width={20} height={20} />
-                <span className="text-[10px] font-medium">Delete</span>
+                <span className="text-xs font-medium font-serif italic">Delete</span>
               </button>
             </Tooltip.Trigger>
             <Tooltip.Content
@@ -91,7 +91,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 }`}
               >
                 <CubeIcon width={20} height={20} />
-                <span className="text-[10px] font-medium">Insert</span>
+                <span className="text-xs font-medium font-serif italic">Insert</span>
               </button>
             </Tooltip.Trigger>
             <Tooltip.Content
@@ -116,7 +116,7 @@ export function Toolbar({ activeTool, setActiveTool, showPromptGenerator, onTogg
                 }`}
               >
                 <MagicWandIcon width={20} height={20} />
-                <span className="text-[10px] font-medium">Generate</span>
+                <span className="text-xs font-medium font-serif italic">Generate</span>
               </button>
             </Tooltip.Trigger>
             <Tooltip.Content

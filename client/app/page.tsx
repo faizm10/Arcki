@@ -260,10 +260,10 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold mb-6 leading-[1.1] tracking-tight font-serif">
               <span className="text-white">Architect the world</span>
             <br />
-              <span className="text-white/80">the way you imagine it.</span>
+              <span className="text-white/70 italic">the way you imagine it.</span>
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-xl mx-auto mb-8 leading-relaxed">
             Edit layouts, swap structures, visualize changes in real-time.
@@ -283,7 +283,7 @@ export default function Home() {
       <section id="features" className="relative z-10 py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div className="text-center mb-16" {...fadeInUp}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold mb-4 font-serif">
               Everything you need to build
             </h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -370,7 +370,7 @@ export default function Home() {
       <section className="relative z-10 py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div className="text-center mb-16" {...fadeInUp}>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold mb-4 font-serif">
               How it works
             </h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -404,7 +404,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="relative z-10 py-24 px-6">
         <motion.div className="max-w-5xl mx-auto text-center" {...fadeInUp}>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold mb-6 font-serif">
             Ready to reshape the world?
           </h2>
           <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">

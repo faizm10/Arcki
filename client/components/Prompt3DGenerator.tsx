@@ -533,7 +533,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
             <CubeIcon width={16} height={16} className="text-white/80" />
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-white font-semibold text-sm">3D Generator</span>
+            <span className="text-white font-semibold text-sm font-serif">3D Generator</span>
             <span className="text-white/50 text-xs">
               {workflowStage === "input" && "Ready to create"}
               {workflowStage === "preview" && threeDJob?.status === "generating" && `${threeDJob.progress}% complete`}
@@ -567,7 +567,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               <CubeIcon width={16} height={16} className="text-white/80" />
             </div>
             <div>
-              <h3 className="text-white font-semibold text-base">3D Model Generator</h3>
+              <h3 className="text-white font-semibold text-lg tracking-tight font-serif">3D Generator</h3>
               <p className="text-white/50 text-xs">
                 {workflowStage === "input" && "Describe your building"}
                 {(workflowStage === "preview" || workflowStage === "placing") && "Review your design"}
@@ -584,14 +584,14 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
           
           {/* === INPUT STAGE === */}
           {workflowStage === "input" && (
             <>
               {/* Prompt Input */}
-              <div className="space-y-2">
-                <label className="text-white/70 text-sm font-medium">Building Description</label>
+              <div>
+                <label className="block text-white/80 text-base font-medium font-serif italic tracking-wide mb-3">Building Description</label>
                 <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -603,8 +603,8 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               </div>
 
               {/* Quick Prompts */}
-              <div className="space-y-2">
-                <label className="text-white/70 text-sm font-medium">Popular Snippets</label>
+              <div className="pt-2">
+                <label className="block text-white/80 text-base font-medium font-serif italic tracking-wide mb-3">Popular Snippets</label>
                 <div className="flex flex-wrap gap-2">
                   {quickPrompts.map((qp) => (
                     <button
@@ -620,8 +620,8 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               </div>
 
               {/* Style Selection */}
-              <div className="space-y-2">
-                <label className="text-white/70 text-sm font-medium">Style</label>
+              <div className="pt-2">
+                <label className="block text-white/80 text-base font-medium font-serif italic tracking-wide mb-3">Style</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["architectural", "modern", "classical", "futuristic"] as const).map((s) => (
                     <button
@@ -641,8 +641,8 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               </div>
 
               {/* Views Selection */}
-              <div className="space-y-2">
-                <label className="text-white/70 text-sm font-medium">Image Views</label>
+              <div className="pt-2">
+                <label className="block text-white/80 text-base font-medium font-serif italic tracking-wide mb-3">Image Views</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4].map((n) => (
                     <button
@@ -665,17 +665,23 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               <button
                 onClick={handleGeneratePreview}
                 disabled={!prompt.trim() || isGeneratingPreview}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-white text-black font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/90"
+                className="relative w-full flex items-center justify-center gap-3 px-5 py-4 rounded-xl bg-white/90 hover:bg-white text-black font-semibold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
               >
+                {/* Large fading background icon */}
+                <ImageIcon
+                  width={80}
+                  height={80}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-black/[0.07] pointer-events-none"
+                />
                 {isGeneratingPreview ? (
                   <>
-                    <ReloadIcon width={16} height={16} className="animate-spin" />
-                    <span>Generating Preview...</span>
+                    <ReloadIcon width={18} height={18} className="animate-spin relative z-10" />
+                    <span className="relative z-10">Generating Preview...</span>
                   </>
                 ) : (
                   <>
-                    <ImageIcon width={16} height={16} />
-                    <span>Generate Preview</span>
+                    <ImageIcon width={18} height={18} className="relative z-10" />
+                    <span className="relative z-10 font-serif">Generate Preview</span>
                   </>
                 )}
               </button>

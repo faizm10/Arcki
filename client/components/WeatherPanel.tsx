@@ -20,7 +20,7 @@ export function WeatherPanel({ lightMode, onToggleLightMode, weather, onWeatherC
         className="flex flex-col items-center gap-1 p-2 rounded-lg transition-all w-10 bg-white/20 text-white shadow-lg"
       >
         {lightMode === "day" ? <SunIcon width={20} height={20} /> : <MoonIcon width={20} height={20} />}
-        <span className="text-[10px] font-medium">{lightMode === "day" ? "Day" : "Night"}</span>
+        <span className="text-xs font-medium font-serif italic">{lightMode === "day" ? "Day" : "Night"}</span>
       </button>
 
       <div className="w-8 h-px bg-white/20 my-1" />
@@ -34,7 +34,7 @@ export function WeatherPanel({ lightMode, onToggleLightMode, weather, onWeatherC
         }`}
       >
         <CloudOff size={18} />
-        <span className="text-[10px] font-medium">Clear</span>
+        <span className="text-xs font-medium font-serif italic">Clear</span>
       </button>
 
       <button
@@ -46,7 +46,7 @@ export function WeatherPanel({ lightMode, onToggleLightMode, weather, onWeatherC
         }`}
       >
         <CloudRain size={18} />
-        <span className="text-[10px] font-medium">Rain</span>
+        <span className="text-xs font-medium font-serif italic">Rain</span>
       </button>
 
       <button
@@ -58,7 +58,7 @@ export function WeatherPanel({ lightMode, onToggleLightMode, weather, onWeatherC
         }`}
       >
         <Snowflake size={18} />
-        <span className="text-[10px] font-medium">Snow</span>
+        <span className="text-xs font-medium font-serif italic">Snow</span>
       </button>
     </div>
   );

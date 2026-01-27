@@ -184,7 +184,7 @@ export function InsertModelModal({ onClose, onPlaceModel }: InsertModelModalProp
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <CubeIcon className="text-white/60" width={20} height={20} />
-            <h2 className="text-white font-semibold text-lg">Insert 3D Model</h2>
+            <h2 className="text-white font-semibold text-xl tracking-tight font-serif">Insert 3D Model</h2>
           </div>
           <button
             onClick={onClose}

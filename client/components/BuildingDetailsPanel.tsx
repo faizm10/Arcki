@@ -100,7 +100,7 @@ export function BuildingDetailsPanel({
         {isDrawMode ? (
           // Draw mode content
           <>
-            <h3 className="text-white font-semibold text-lg">Selected Area</h3>
+            <h3 className="text-white font-semibold text-lg tracking-tight font-serif">Selected Area</h3>
             <p className="text-white/50 text-xs mt-0.5 mb-3">Draw selection</p>
 
             {/* Metrics */}

@@ -90,7 +90,7 @@ export function AssetManagerPanel({
       {/* Header */}
       <div className="flex items-center gap-2 p-3 border-b border-white/10">
         <CubeIcon className="text-white/60" width={16} height={16} />
-        <h3 className="text-white font-semibold text-sm">Assets</h3>
+        <h3 className="text-white font-medium text-sm font-serif italic tracking-wide">Assets</h3>
         <span className="text-white/40 text-xs">({models.length})</span>
       </div>
 
