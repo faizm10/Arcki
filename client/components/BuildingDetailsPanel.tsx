@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Cross2Icon,
   DrawingPinIcon,
@@ -84,10 +85,12 @@ export function BuildingDetailsPanel({
               <div className="text-white/30 text-sm">Image unavailable</div>
             </div>
           ) : (
-            <img
+            <Image
               src={staticImageUrl}
               alt="Building aerial view"
-              className={`w-full h-full object-cover transition-opacity ${imageLoaded ? "opacity-100" : "opacity-0"}`}
+              fill
+              unoptimized
+              className={`object-cover transition-opacity ${imageLoaded ? "opacity-100" : "opacity-0"}`}
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageError(true)}
             />

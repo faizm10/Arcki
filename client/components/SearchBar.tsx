@@ -19,7 +19,6 @@ export function SearchBar({
   placeholder = "Search...",
   quickPrompts = [],
 }: SearchBarProps) {
-  const [_isFocused, setIsFocused] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -77,8 +76,6 @@ export function SearchBar({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={placeholder}
             className="w-full pl-12 pr-3 py-2 bg-transparent text-white text-sm placeholder:text-white/40 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading}

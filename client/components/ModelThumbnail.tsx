@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { CubeIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
 
 // Shared renderer singleton - only one WebGL context for all thumbnails
 let sharedRenderer: THREE.WebGLRenderer | null = null;
@@ -200,11 +201,12 @@ export function ModelThumbnail({ glbUrl, size = 64, className = "" }: ModelThumb
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
       {imageData ? (
-        <img
+        <Image
           src={imageData}
           alt="Model thumbnail"
           width={size}
           height={size}
+          unoptimized
           style={{ width: size, height: size, display: "block" }}
         />
       ) : null}

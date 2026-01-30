@@ -20,7 +20,7 @@ interface EarthSceneProps {
   onWaterlooScreenPosition?: (position: { x: number; y: number }) => void;
 }
 
-export default function EarthScene({ markers = [], currentSection = 0, onWaterlooScreenPosition }: EarthSceneProps) {
+export default function EarthScene({ currentSection = 0 }: EarthSceneProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const targetPosition = useRef(new THREE.Vector3(7, 0, 4));
@@ -29,7 +29,6 @@ export default function EarthScene({ markers = [], currentSection = 0, onWaterlo
   const targetRotationY = useRef(0);
   const targetRotationX = useRef(0);
   const targetRotationZ = useRef(0);
-  const globeRef = useRef<THREE.Mesh | null>(null);
   const connectionLineRef = useRef<THREE.Line | null>(null);
   const waterlooScreenPos = useRef({ x: 0, y: 0 });
   const waterlooLabelRef = useRef<HTMLDivElement | null>(null);
@@ -96,18 +95,10 @@ export default function EarthScene({ markers = [], currentSection = 0, onWaterlo
 
     // Mouse tracking for emoji lookAt calculations
     const emojiRaycaster = new THREE.Raycaster();
-    const targetPoint = new THREE.Vector3();
 
     // Store reference to emoji for mouse following
     let emojiModel: THREE.Group | null = null;
     let emojiHead: THREE.Object3D | null = null;
-
-    // Mouse tracking variables for proper raycasting (like the working example)
-    const intersectionPoint = new THREE.Vector3();
-    const planeNormal = new THREE.Vector3();
-    const plane = new THREE.Plane();
-    const mousePosition = new THREE.Vector2();
-    const headRaycaster = new THREE.Raycaster();
 
     const textureLoader = new THREE.TextureLoader();
     const starSprite = textureLoader.load("/circle.png");

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Cross2Icon, CubeIcon, ReloadIcon, CheckCircledIcon, ExclamationTriangleIcon, ImageIcon, Pencil1Icon, ChevronLeftIcon, ChevronRightIcon, EnterFullScreenIcon, MinusIcon } from "@radix-ui/react-icons";
 import { supabase } from "@/lib/supabase";
+import Image from "next/image";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const STORAGE_KEY = "prompt3d_generator_state";
@@ -466,9 +467,12 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
         >
           {/* Image - Constrained to viewport */}
           <div className="flex-1 flex items-center justify-center w-full min-h-0">
-            <img
+            <Image
               src={previewResult.image_urls[selectedImageIndex]}
               alt={`View ${selectedImageIndex + 1}`}
+              width={800}
+              height={800}
+              unoptimized
               className="max-w-full max-h-[70vh] object-contain rounded-xl shadow-2xl"
             />
           </div>
@@ -486,7 +490,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                       : "border-white/20 hover:border-white/40"
                   }`}
                 >
-                  <img src={url} alt={`View ${i + 1}`} className="w-full h-full object-cover" />
+                  <Image src={url} alt={`View ${i + 1}`} fill unoptimized className="object-cover" />
                 </button>
               ))}
             </div>
@@ -742,10 +746,12 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                           : "border-white/10 hover:border-white/30"
                       }`}
                     >
-                      <img
+                      <Image
                         src={url}
                         alt={`View ${i + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        unoptimized
+                        className="object-cover"
                       />
                       <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-white/70">
                         View {i + 1}
@@ -769,10 +775,12 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                     onClick={() => window.open(previewResult.preview_3d_url, '_blank')}
                     className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-all hover:scale-[1.01]"
                   >
-                    <img
+                    <Image
                       src={previewResult.preview_3d_url}
                       alt="3D Preview"
-                      className="w-full h-full object-cover"
+                      fill
+                      unoptimized
+                      className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
@@ -830,7 +838,6 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
             </>
           )}
 
-          {/* Error */}
           {error && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
               <div className="flex items-center gap-2">
