@@ -100,6 +100,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
     } catch (e) {
       console.error("Failed to restore generator state:", e);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save state to localStorage whenever it changes
@@ -125,6 +126,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
       // User clicked Generate again - expand
       setIsMinimized(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible]);
 
   // Cleanup polling on unmount
@@ -141,6 +143,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
     if (previewResult && workflowStage === "preview" && !threeDJob) {
       start3DGeneration(previewResult.job_id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewResult, workflowStage]);
 
   const handleGeneratePreview = async () => {
@@ -221,7 +224,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               clearInterval(pollIntervalRef.current);
             }
           }
-        } catch (e) {
+        } catch {
           // Silent fail - keep polling
         }
       }, 1500);
@@ -287,7 +290,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
             setIsPlacing(false);
             setWorkflowStage("preview");
           }
-        } catch (e) {
+        } catch {
           // Keep waiting
         }
       }, 1000);
@@ -308,7 +311,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
       let modelUrl = URL.createObjectURL(blob);
       if (previewResult && threeDJob) {
         try {
-          const publicUrl = await uploadToLibrary(file, previewResult, threeDJob);
+          const publicUrl = await uploadToLibrary(file, previewResult);
           if (publicUrl) modelUrl = publicUrl;
         } catch (err) {
           console.error('Failed to upload generated model to library:', err);
@@ -341,7 +344,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
     }
   };
 
-  const uploadToLibrary = async (file: File, preview: PreviewResult, _job: ThreeDJobResult): Promise<string | null> => {
+  const uploadToLibrary = async (file: File, preview: PreviewResult): Promise<string | null> => {
     try {
       const timestamp = Date.now();
       const glbFilename = `${timestamp}-generated.glb`;
@@ -380,8 +383,8 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
               .getPublicUrl(thumbnailFilename);
             thumbnailUrl = publicUrl;
           }
-        } catch (e) {
-          console.warn('Failed to upload thumbnail, using placeholder');
+        } catch {
+          console.log('Failed to upload thumbnail, using placeholder');
         }
       }
 
@@ -564,7 +567,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
       <ExpandedModal />
 
       {/* Main Panel */}
-      <div className="absolute right-4 top-4 z-20 w-[420px] rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden">
+      <div className="absolute right-4 top-4 z-20 w-105 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -782,7 +785,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                       unoptimized
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
                       <span className="text-white/80 text-xs font-medium">3D Perspective Render</span>
                       <span className="px-2 py-0.5 rounded bg-white/20 text-white/70 text-[10px]">Click to expand</span>

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { CubeIcon, TrashIcon, TargetIcon, LockClosedIcon, LockOpen1Icon } from "@radix-ui/react-icons";
+import {
+  CubeIcon,
+  TrashIcon,
+  TargetIcon,
+  LockClosedIcon,
+  LockOpen1Icon,
+} from "@radix-ui/react-icons";
 
 interface InsertedModel {
   id: string;
@@ -21,21 +27,39 @@ interface AssetManagerPanelProps {
   onClose: () => void;
   onFlyTo: (position: [number, number]) => void;
   onDelete: (id: string) => void;
-  onUpdateModel: (id: string, updates: { name?: string; scale?: number; positionX?: number; positionY?: number; height?: number; heightLocked?: boolean; rotationX?: number; rotationY?: number; rotationZ?: number }) => void;
+  onUpdateModel: (
+    id: string,
+    updates: {
+      name?: string;
+      scale?: number;
+      positionX?: number;
+      positionY?: number;
+      height?: number;
+      heightLocked?: boolean;
+      rotationX?: number;
+      rotationY?: number;
+      rotationZ?: number;
+    },
+  ) => void;
 }
 
 export function AssetManagerPanel({
   models,
-  onClose: _onClose,
   onFlyTo,
   onDelete,
   onUpdateModel,
 }: AssetManagerPanelProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingField, setEditingField] = useState<"name" | "scale" | "positionX" | "positionY" | "height" | null>(null);
+  const [editingField, setEditingField] = useState<
+    "name" | "scale" | "positionX" | "positionY" | "height" | null
+  >(null);
   const [editValue, setEditValue] = useState("");
 
-  const handleStartEdit = (model: InsertedModel, index: number, field: "name" | "scale" | "positionX" | "positionY" | "height") => {
+  const handleStartEdit = (
+    model: InsertedModel,
+    index: number,
+    field: "name" | "scale" | "positionX" | "positionY" | "height",
+  ) => {
     setEditingId(model.id);
     setEditingField(field);
     if (field === "name") {
@@ -90,7 +114,9 @@ export function AssetManagerPanel({
       {/* Header */}
       <div className="flex items-center gap-2 p-3 border-b border-white/10">
         <CubeIcon className="text-white/60" width={16} height={16} />
-        <h3 className="text-white font-medium text-sm font-serif italic tracking-wide">Assets</h3>
+        <h3 className="text-white font-medium text-sm font-serif italic tracking-wide">
+          Assets
+        </h3>
         <span className="text-white/40 text-xs">({models.length})</span>
       </div>
 
@@ -164,7 +190,8 @@ export function AssetManagerPanel({
                     <span className="text-white/30">Pos:</span>
                     {editingId === model.id && editingField === "positionX" ? (
                       <span className="text-white">
-                        X:<input
+                        X:
+                        <input
                           type="text"
                           inputMode="decimal"
                           value={editValue}
@@ -177,7 +204,9 @@ export function AssetManagerPanel({
                       </span>
                     ) : (
                       <button
-                        onClick={() => handleStartEdit(model, index, "positionX")}
+                        onClick={() =>
+                          handleStartEdit(model, index, "positionX")
+                        }
                         className="hover:text-white transition-colors"
                         title="Longitude (X)"
                       >
@@ -186,7 +215,8 @@ export function AssetManagerPanel({
                     )}
                     {editingId === model.id && editingField === "positionY" ? (
                       <span className="text-white">
-                        Y:<input
+                        Y:
+                        <input
                           type="text"
                           inputMode="decimal"
                           value={editValue}
@@ -199,7 +229,9 @@ export function AssetManagerPanel({
                       </span>
                     ) : (
                       <button
-                        onClick={() => handleStartEdit(model, index, "positionY")}
+                        onClick={() =>
+                          handleStartEdit(model, index, "positionY")
+                        }
                         className="hover:text-white transition-colors"
                         title="Latitude (Y)"
                       >
@@ -208,7 +240,8 @@ export function AssetManagerPanel({
                     )}
                     {editingId === model.id && editingField === "height" ? (
                       <span className="text-white">
-                        Z:<input
+                        Z:
+                        <input
                           type="text"
                           inputMode="decimal"
                           value={editValue}
@@ -222,20 +255,32 @@ export function AssetManagerPanel({
                     ) : (
                       <button
                         onClick={() => handleStartEdit(model, index, "height")}
-                        className={`hover:text-white transition-colors ${model.heightLocked ? 'opacity-60' : ''}`}
-                        title={model.heightLocked ? "Height (Z) - locked to scale" : "Height (Z)"}
+                        className={`hover:text-white transition-colors ${model.heightLocked ? "opacity-60" : ""}`}
+                        title={
+                          model.heightLocked
+                            ? "Height (Z) - locked to scale"
+                            : "Height (Z)"
+                        }
                       >
                         Z:{model.height.toFixed(1)}
                       </button>
                     )}
                     <button
-                      onClick={() => onUpdateModel(model.id, { heightLocked: !model.heightLocked })}
+                      onClick={() =>
+                        onUpdateModel(model.id, {
+                          heightLocked: !model.heightLocked,
+                        })
+                      }
                       className={`ml-1 p-0.5 rounded transition-all ${
-                        model.heightLocked 
-                          ? 'text-amber-400 hover:text-amber-300' 
-                          : 'text-white/40 hover:text-white/60'
+                        model.heightLocked
+                          ? "text-amber-400 hover:text-amber-300"
+                          : "text-white/40 hover:text-white/60"
                       }`}
-                      title={model.heightLocked ? "Height locked to scale (0.36 ratio) - click to unlock" : "Height unlocked - click to lock"}
+                      title={
+                        model.heightLocked
+                          ? "Height locked to scale (0.36 ratio) - click to unlock"
+                          : "Height unlocked - click to lock"
+                      }
                     >
                       {model.heightLocked ? (
                         <LockClosedIcon width={10} height={10} />

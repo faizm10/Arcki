@@ -41,7 +41,6 @@
   }
 }
 
-/* Building Popup Styles */
 .building-popup .mapboxgl-popup-content {
   background: rgba(0, 0, 0, 0.9) !important;
   backdrop-filter: blur(12px);

@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "motion/react";
 import { ArrowRight } from "lucide-react";
-import { MobileWarningModal } from "@/components/MobileWarningModal";
+import { MobileWarningModal } from "@/components/modals/MobileWarningModal";
 import { useMobileCheck } from "@/hooks/useMobileCheck";
 
-const LandingGlobe = dynamic(() => import("@/components/LandingGlobe"), {
+const LandingGlobe = dynamic(() => import("@/components/globes/LandingGlobe"), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-black" />,
 });
@@ -113,9 +113,8 @@ export default function Home() {
         />
       </motion.div>
 
-      {/* Stars layer 2 - faster pulse, offset timing */}
       <motion.div
-        className="fixed inset-0 pointer-events-none z-[2]"
+        className="fixed inset-0 pointer-events-none z-2"
         style={{ y: stars2Y, x: stars2X }}
         animate={{ opacity: [0.55, 0.65, 0.55] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
@@ -146,7 +145,7 @@ export default function Home() {
 
       {/* Fixed Globe Background */}
       <motion.div
-        className="fixed inset-0 z-[1] pointer-events-auto"
+        className="fixed inset-0 z-1 pointer-events-auto"
         style={{
           x: globeX,
           y: globeY,
@@ -160,7 +159,7 @@ export default function Home() {
       {/* Hero Section */}
       <div className="relative h-screen overflow-hidden z-10">
         <div
-          className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent"
+          className="absolute inset-0 bg-linear-to-b from-black/60 via-transparent to-transparent"
           style={{ height: "50%" }}
         />
 
@@ -238,7 +237,7 @@ export default function Home() {
           >
             {/* Hero Card - Large with image */}
             <motion.div
-              className="md:col-span-2 lg:col-span-2 row-span-2 rounded-2xl overflow-hidden relative min-h-[300px] md:min-h-[400px] group backdrop-blur-sm border border-white/5"
+              className="md:col-span-2 lg:col-span-2 row-span-2 rounded-2xl overflow-hidden relative min-h-75 md:min-h-100 group backdrop-blur-sm border border-white/5"
               style={{
                 background: "rgba(15, 12, 10, 0.4)",
               }}
@@ -253,7 +252,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-black/20" />
               <div className="absolute bottom-0 left-0 right-0 p-8">
                 <h3 className="text-2xl font-semibold mb-2 font-serif text-white">Global Coverage</h3>
                 <p className="text-white/60 font-serif italic text-lg">Access detailed 3D maps of any location worldwide, powered by Mapbox.</p>
@@ -277,7 +276,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/20" />
               <div className="relative p-6">
                 <h3 className="text-xl font-semibold mb-2 font-serif text-white">AI-Powered</h3>
                 <p className="text-white/50 font-serif italic">Let AI do literally anything. Change the weather, delete & insert buildings.</p>
@@ -301,7 +300,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/20" />
               <div className="relative p-6">
                 <h3 className="text-xl font-semibold mb-2 font-serif text-white">3D Generation</h3>
                 <p className="text-white/50 font-serif italic">Transform text into detailed 3D models in seconds.</p>
@@ -325,7 +324,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30" />
+              <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-black/30" />
               <div className="relative p-8">
                 <h3 className="text-xl font-semibold mb-2 font-serif text-white">Asset Library</h3>
                 <p className="text-white/50 font-serif italic text-lg">Import your own 3D assets. All models you generate are saved to your library.</p>
@@ -349,7 +348,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/20" />
               <div className="relative p-6">
                 <h3 className="text-xl font-semibold mb-2 font-serif text-white">Intuitive Controls</h3>
                 <p className="text-white/50 font-serif italic">Drag, drop, rotate, and scale with natural gestures.</p>
@@ -394,7 +393,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20" />
               <div className="absolute top-4 left-4">
                 <span className="text-5xl font-serif text-white/15">01</span>
               </div>
@@ -420,7 +419,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20" />
               <div className="absolute top-4 left-4">
                 <span className="text-5xl font-serif text-white/15">02</span>
               </div>
@@ -446,7 +445,7 @@ export default function Home() {
                   filter: "saturate(0.8)",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20" />
               <div className="absolute top-4 left-4">
                 <span className="text-5xl font-serif text-white/15">03</span>
               </div>

@@ -8,17 +8,17 @@ import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import area from "@turf/area";
 import bbox from "@turf/bbox";
 import { Toolbar } from "@/components/Toolbar";
-import { WeatherPanel } from "@/components/WeatherPanel";
-import { BuildingDetailsPanel } from "@/components/BuildingDetailsPanel";
-import { InsertModelModal } from "@/components/InsertModelModal";
-import { AssetManagerPanel } from "@/components/AssetManagerPanel";
+import { WeatherPanel } from "@/components/panels/WeatherPanel";
+import { BuildingDetailsPanel } from "@/components/panels/BuildingDetailsPanel";
+import { InsertModelModal } from "@/components/modals/InsertModelModal";
+import { AssetManagerPanel } from "@/components/panels/AssetManagerPanel";
 import { Prompt3DGenerator } from "@/components/Prompt3DGenerator";
 import { TransformGizmo } from "@/components/TransformGizmo";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchResultPopup } from "@/components/SearchResultPopup";
 import { MapControls } from "@/components/MapControls";
 import { GitHubLogoIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { BugReportModal } from "@/components/BugReportModal";
+import { BugReportModal } from "@/components/modals/BugReportModal";
 import { Tutorial, shouldShowTutorial } from "@/components/Tutorial";
 
 interface SelectedBuilding {

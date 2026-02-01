@@ -107,7 +107,7 @@ export function SearchBar({
 
             {/* Dropdown Menu */}
             {showDropdown && (
-              <div className="absolute top-full right-0 mt-2 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 shadow-xl p-3 z-30 min-w-[280px] animate-[fadeIn_0.2s_ease-out_forwards]">
+              <div className="absolute top-full right-0 mt-2 bg-black/40 backdrop-blur-md rounded-xl border border-white/10 shadow-xl p-3 z-30 min-w-70 animate-[fadeIn_0.2s_ease-out_forwards]">
                 <div className="text-xs text-white/60 mb-2.5 px-1 font-medium tracking-wide uppercase">Quick prompts</div>
                 <div className="flex flex-col gap-2">
                   {quickPrompts.map((prompt, idx) => (

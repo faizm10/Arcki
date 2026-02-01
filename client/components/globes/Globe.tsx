@@ -55,6 +55,8 @@ export default function EarthScene({ currentSection = 0 }: EarthSceneProps) {
       cameraRef.current = null;
     }
 
+    const mountNode = mountRef.current;
+
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
@@ -72,13 +74,13 @@ export default function EarthScene({ currentSection = 0 }: EarthSceneProps) {
     renderer.setPixelRatio(window.devicePixelRatio);
     rendererRef.current = renderer;
 
-    if (mountRef.current) {
+    if (mountNode) {
       // Clear any existing canvas elements first
-      const existingCanvas = mountRef.current.querySelector('canvas');
+      const existingCanvas = mountNode.querySelector('canvas');
       if (existingCanvas) {
-        mountRef.current.removeChild(existingCanvas);
+        mountNode.removeChild(existingCanvas);
       }
-      mountRef.current.appendChild(renderer.domElement);
+      mountNode.appendChild(renderer.domElement);
     }
 
     const orbitCtrl = new OrbitControls(camera, renderer.domElement);
@@ -307,8 +309,8 @@ export default function EarthScene({ currentSection = 0 }: EarthSceneProps) {
       </div>
     `;
     waterlooLabelRef.current = waterlooLabel;
-    if (mountRef.current) {
-      mountRef.current.appendChild(waterlooLabel);
+    if (mountNode) {
+      mountNode.appendChild(waterlooLabel);
     }
 
     // Add glow effect
@@ -672,12 +674,12 @@ intensity = pow(intensity, 1.5); // Reduced exponent for larger middle gradient
       window.removeEventListener("resize", onResize);
 
       // Cleanup DOM elements
-      if (mountRef.current) {
-        if (renderer.domElement && mountRef.current.contains(renderer.domElement)) {
-          mountRef.current.removeChild(renderer.domElement);
+      if (mountNode) {
+        if (renderer.domElement && mountNode.contains(renderer.domElement)) {
+          mountNode.removeChild(renderer.domElement);
         }
-        if (waterlooLabelRef.current && mountRef.current.contains(waterlooLabelRef.current)) {
-          mountRef.current.removeChild(waterlooLabelRef.current);
+        if (waterlooLabelRef.current && mountNode.contains(waterlooLabelRef.current)) {
+          mountNode.removeChild(waterlooLabelRef.current);
         }
       }
 
@@ -687,6 +689,7 @@ intensity = pow(intensity, 1.5); // Reduced exponent for larger middle gradient
       sceneRef.current = null;
       cameraRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update camera position when section changes

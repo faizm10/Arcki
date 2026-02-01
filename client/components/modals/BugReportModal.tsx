@@ -32,7 +32,7 @@ export function BugReportModal({ onClose }: BugReportModalProps) {
 
     try {
       // Use Next.js API route instead of Python backend
-      const response = await fetch("/api/github/issue", {
+      const response = await fetch("/api/github", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export function BugReportModal({ onClose }: BugReportModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={handleOverlayClick}
     >
-      <div className="relative w-[500px] rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden">
+      <div className="relative w-125 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center gap-3">

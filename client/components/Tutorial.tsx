@@ -27,14 +27,14 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "welcome",
     title: "Welcome",
     description: "Let's get you started with the essentials.",
-    image: "/welcome.png",
+    image: "/icons/welcome.png",
     position: "center",
   },
   {
     id: "toolbar-select",
     title: "Select",
     description: "Click any building to inspect its properties.",
-    image: "/select.png",
+    image: "/icons/select.png",
     target: '[data-tutorial="toolbar-select"]',
     position: "bottom",
   },
@@ -42,7 +42,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "toolbar-delete",
     title: "Delete",
     description: "Draw around buildings to remove them.",
-    image: "/delete.png",
+    image: "/icons/delete.png",
     target: '[data-tutorial="toolbar-delete"]',
     position: "bottom",
   },
@@ -50,7 +50,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "toolbar-insert",
     title: "Insert",
     description: "Add models from the library or upload your own.",
-    image: "/insert.png",
+    image: "/icons/insert.png",
     target: '[data-tutorial="toolbar-insert"]',
     position: "bottom",
   },
@@ -58,7 +58,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "toolbar-generate",
     title: "Generate",
     description: "Describe anything. AI builds it for you.",
-    image: "/generate.png",
+    image: "/icons/generate.png",
     target: '[data-tutorial="toolbar-generate"]',
     position: "bottom",
   },
@@ -66,7 +66,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "search-bar",
     title: "Search",
     description: "Find places or use natural language commands.",
-    image: "/search.png",
+    image: "/icons/search.png",
     target: '[data-tutorial="search-bar"]',
     position: "top",
   },
@@ -74,7 +74,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "map-controls",
     title: "Controls",
     description: "Zoom, rotate, and toggle 2D/3D views.",
-    image: "/controls.png",
+    image: "/icons/controls.png",
     target: '[data-tutorial="map-controls"]',
     position: "left",
   },
@@ -82,7 +82,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "weather-panel",
     title: "Environment",
     description: "Set the time of day and weather.",
-    image: "/environment.png",
+    image: "/icons/environment.png",
     target: '[data-tutorial="weather-panel"]',
     position: "right",
   },
@@ -90,7 +90,7 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: "complete",
     title: "Ready",
     description: "Go build something incredible.",
-    image: "/ready.png",
+    image: "/icons/ready.png",
     position: "center",
   },
 ];
@@ -109,8 +109,6 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
 
   useEffect(() => {
     if (!step.target) {
-      setHighlightElement(null);
-      setHighlightRect(null);
       return;
     }
 
@@ -166,8 +164,11 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     onSkip();
   };
 
+  // Derive effective rect — null when step has no target (avoids sync setState in effect)
+  const activeRect = step.target ? highlightRect : null;
+
   const getTooltipPosition = () => {
-    if (!highlightRect || !step.position || step.position === "center") {
+    if (!activeRect || !step.position || step.position === "center") {
       return {
         top: "50%",
         left: "50%",
@@ -187,36 +188,36 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
 
     switch (step.position) {
       case "top":
-        const spaceAbove = highlightRect.top;
+        const spaceAbove = activeRect.top;
         if (spaceAbove < tooltipHeight + padding) {
-          top = highlightRect.bottom + padding;
+          top = activeRect.bottom + padding;
           left = Math.max(padding, Math.min(
-            highlightRect.left + highlightRect.width / 2,
+            activeRect.left + activeRect.width / 2,
             viewportWidth - tooltipWidth / 2 - padding
           ));
           transform = "translate(-50%, 0)";
         } else {
-          top = highlightRect.top - padding;
+          top = activeRect.top - padding;
           left = Math.max(tooltipWidth / 2 + padding, Math.min(
-            highlightRect.left + highlightRect.width / 2,
+            activeRect.left + activeRect.width / 2,
             viewportWidth - tooltipWidth / 2 - padding
           ));
           transform = "translate(-50%, -100%)";
         }
         break;
       case "bottom":
-        const spaceBelow = viewportHeight - highlightRect.bottom;
+        const spaceBelow = viewportHeight - activeRect.bottom;
         if (spaceBelow < tooltipHeight + padding) {
-          top = highlightRect.top - padding;
+          top = activeRect.top - padding;
           left = Math.max(padding, Math.min(
-            highlightRect.left + highlightRect.width / 2,
+            activeRect.left + activeRect.width / 2,
             viewportWidth - tooltipWidth / 2 - padding
           ));
           transform = "translate(-50%, -100%)";
         } else {
-          top = highlightRect.bottom + padding;
+          top = activeRect.bottom + padding;
           left = Math.max(tooltipWidth / 2 + padding, Math.min(
-            highlightRect.left + highlightRect.width / 2,
+            activeRect.left + activeRect.width / 2,
             viewportWidth - tooltipWidth / 2 - padding
           ));
           transform = "translate(-50%, 0)";
@@ -224,18 +225,18 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
         break;
       case "left":
         top = Math.max(padding, Math.min(
-          highlightRect.top + highlightRect.height / 2,
+          activeRect.top + activeRect.height / 2,
           viewportHeight - tooltipHeight / 2 - padding
         ));
-        left = Math.max(padding, highlightRect.left - padding);
+        left = Math.max(padding, activeRect.left - padding);
         transform = "translate(-100%, -50%)";
         break;
       case "right":
         top = Math.max(padding, Math.min(
-          highlightRect.top + highlightRect.height / 2,
+          activeRect.top + activeRect.height / 2,
           viewportHeight - tooltipHeight / 2 - padding
         ));
-        left = Math.min(viewportWidth - tooltipWidth - padding, highlightRect.right + padding);
+        left = Math.min(viewportWidth - tooltipWidth - padding, activeRect.right + padding);
         transform = "translate(0, -50%)";
         break;
     }
@@ -250,17 +251,17 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
       {/* Dark overlay with cutout */}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[9998] transition-all duration-500 pointer-events-none bg-black/60"
-        style={highlightRect ? {
+        className="fixed inset-0 z-9998 transition-all duration-500 pointer-events-none bg-black/60"
+        style={activeRect ? {
           clipPath: `polygon(
             0% 0%,
             0% 100%,
-            ${highlightRect.left - 12}px 100%,
-            ${highlightRect.left - 12}px ${highlightRect.top - 12}px,
-            ${highlightRect.right + 12}px ${highlightRect.top - 12}px,
-            ${highlightRect.right + 12}px ${highlightRect.bottom + 12}px,
-            ${highlightRect.left - 12}px ${highlightRect.bottom + 12}px,
-            ${highlightRect.left - 12}px 100%,
+            ${activeRect.left - 12}px 100%,
+            ${activeRect.left - 12}px ${activeRect.top - 12}px,
+            ${activeRect.right + 12}px ${activeRect.top - 12}px,
+            ${activeRect.right + 12}px ${activeRect.bottom + 12}px,
+            ${activeRect.left - 12}px ${activeRect.bottom + 12}px,
+            ${activeRect.left - 12}px 100%,
             100% 100%,
             100% 0%
           )`,
@@ -268,14 +269,14 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
       />
 
       {/* Highlight ring around target element */}
-      {highlightRect && (
+      {activeRect && (
         <div
-          className="fixed z-[9999] pointer-events-none rounded-2xl transition-all duration-500"
+          className="fixed z-9999 pointer-events-none rounded-2xl transition-all duration-500"
           style={{
-            top: highlightRect.top - 12,
-            left: highlightRect.left - 12,
-            width: highlightRect.width + 24,
-            height: highlightRect.height + 24,
+            top: activeRect.top - 12,
+            left: activeRect.left - 12,
+            width: activeRect.width + 24,
+            height: activeRect.height + 24,
           }}
         >
           <div className="absolute inset-0 rounded-2xl border border-white/50" />
@@ -285,7 +286,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
 
       {/* Main card */}
       <div
-        className="fixed z-[10000] w-[360px] pointer-events-auto transition-all duration-500"
+        className="fixed z-10000 w-90 pointer-events-auto transition-all duration-500"
         style={tooltipStyle}
       >
         <div
@@ -303,7 +304,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
           {/* Step icon image */}
           <div className="flex justify-center pt-7 pb-1">
             <div
-              className="w-[88px] h-[88px] rounded-xl overflow-hidden"
+              className="w-22 h-22 rounded-xl overflow-hidden"
               style={{ filter: "saturate(0.85)" }}
             >
               <Image
@@ -328,7 +329,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
             {/* Progress bar */}
             <div className="mb-5">
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">
+                <div className="flex-1 h-0.5 bg-white/10 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-white/40 transition-all duration-500 rounded-full"
                     style={{ width: `${((currentStep + 1) / TUTORIAL_STEPS.length) * 100}%` }}

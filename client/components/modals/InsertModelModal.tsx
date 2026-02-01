@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Cross2Icon, UploadIcon, CubeIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { supabase } from "@/lib/supabase";
-import { ModelThumbnail } from "./ModelThumbnail";
+import { ModelThumbnail } from "../ModelThumbnail";
 
 interface PendingModel {
   file: File;
@@ -174,7 +174,7 @@ export function InsertModelModal({ onClose, onPlaceModel }: InsertModelModalProp
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={handleOverlayClick}
     >
-      <div className="relative w-[500px] rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden">
+      <div className="relative w-125 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -252,7 +252,7 @@ export function InsertModelModal({ onClose, onPlaceModel }: InsertModelModalProp
                     className="group w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 transition-all"
                   >
                     {/* Live 3D Thumbnail */}
-                    <div className="w-28 h-28 rounded-lg overflow-hidden bg-black/40 flex-shrink-0">
+                    <div className="w-28 h-28 rounded-lg overflow-hidden bg-black/40 shrink-0">
                       <ModelThumbnail glbUrl={model.glb_url} size={112} />
                     </div>
 
@@ -265,7 +265,7 @@ export function InsertModelModal({ onClose, onPlaceModel }: InsertModelModalProp
                     </div>
 
                     {/* Icon */}
-                    <CubeIcon className="text-white/40 group-hover:text-white/80 transition-colors flex-shrink-0" width={18} height={18} />
+                    <CubeIcon className="text-white/40 group-hover:text-white/80 transition-colors shrink-0" width={18} height={18} />
                   </button>
                 ))}
               </div>

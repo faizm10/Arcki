@@ -1,15 +1,21 @@
 import * as THREE from "three";
 
-export default function getStarfield({ numStars = 500, sprite }: { numStars?: number; sprite?: THREE.Texture }) {
+export default function getStarfield({
+  numStars = 500,
+  sprite,
+}: {
+  numStars?: number;
+  sprite?: THREE.Texture;
+}) {
   function randomSpherePoint() {
     const radius = Math.random() * 25 + 25;
     const u = Math.random();
     const v = Math.random();
     const theta = 2 * Math.PI * u;
     const phi = Math.acos(2 * v - 1);
-    let x = radius * Math.sin(phi) * Math.cos(theta);
-    let y = radius * Math.sin(phi) * Math.sin(theta);
-    let z = radius * Math.cos(phi);
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
 
     return {
       pos: new THREE.Vector3(x, y, z),
