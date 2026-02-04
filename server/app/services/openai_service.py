@@ -84,39 +84,35 @@ Be concise (1-2 sentences max). Include key facts when available:
 If no results were found, provide a helpful message."""
 
     STYLE_CONTEXTS = {
-        "architectural": "2D flat line art blueprint with bold colored outlines, no 3D, no fill",
-        "modern": "2D flat line art with bold colored outlines, minimalist modern, no 3D, no fill",
-        "classical": "2D flat line art with bold colored outlines, classical details, no 3D, no fill",
-        "futuristic": "2D flat line art with bold colored outlines, sleek futuristic, no 3D, no fill",
+        "architectural": "professional architectural visualization, realistic materials and lighting",
+        "modern": "modern minimalist architecture, clean lines, glass and steel, realistic rendering",
+        "classical": "classical architecture with ornate details, stone and marble textures, realistic rendering",
+        "futuristic": "futuristic architecture, sleek materials, dramatic lighting, realistic rendering",
     }
 
-    SYSTEM_PROMPT = """You create 2D FLAT LINE ART prompts for DALL-E. NEVER 3D renders.
+    SYSTEM_PROMPT = """You create prompts for DALL-E that generate REALISTIC COLORED architectural renders suitable for 3D model reconstruction.
 
 CRITICAL RULES - MUST FOLLOW:
-- 2D FLAT LINE ART ONLY - like a blueprint or technical drawing
-- ABSOLUTELY NO 3D RENDERING - flat 2D illustration only
-- ABSOLUTELY NO FILLED COLORS - only outline strokes
-- ABSOLUTELY NO REALISTIC MATERIALS OR TEXTURES
-- Just bold colored LINE STROKES on pure white background
-- Like an architect's line drawing but with colorful lines instead of black
-- Think: vector illustration, blueprint style, technical drawing
-- Lines should be clean, bold, and in vibrant colors (purple, blue, pink, teal)
-- Pure white background - nothing else
-- NO TEXT or words in the image
-- 2D ONLY - NOT 3D
+- Generate REALISTIC, FULLY COLORED images with proper materials and textures
+- Use ACCURATE REAL-WORLD COLORS: grass is green, brick is red/brown, glass is reflective blue-gray, concrete is gray, wood is brown, etc.
+- For KNOWN BUILDINGS (e.g. CN Tower, Eiffel Tower, Empire State Building), match their REAL colors and proportions exactly
+- CLEAN SOLID BACKGROUND — pure white or light gray, NO environment, NO ground plane, NO sky
+- The building should be the ONLY object in the image — isolated, centered, well-lit
+- Use SOFT EVEN LIGHTING from multiple directions to minimize shadows and show all surfaces clearly
+- NO text, labels, annotations, or watermarks
+- Show REALISTIC PROPORTIONS — the building should look architecturally accurate
+- Materials should be clearly distinguishable: glass vs steel vs concrete vs brick etc.
 
-Example: "2D flat line art blueprint of a [building],
-only colored outline strokes, no fill, no 3D, no realistic rendering,
-purple and blue line strokes on white background, technical drawing style,
-vector illustration"
+The images will be used by an AI 3D reconstruction model (Trellis), so:
+- Clean isolation on white/light background is essential
+- All surfaces need visible color and texture information
+- Multiple distinct views help reconstruction — each view should show different faces of the building
 
 Respond in JSON:
 {
-    "cleaned_prompt": "Simple description",
-    "dalle_prompt": "2D flat line art, blueprint style, only colored outline strokes, "
-                    "no fill, no 3D rendering, no realistic textures, "
-                    "colored lines on white background, technical drawing",
-    "style_tags": ["2D line art", "blueprint", "colored outlines", "flat illustration", "no 3D"]
+    "cleaned_prompt": "Simple description of the building",
+    "dalle_prompt": "Detailed prompt following the rules above",
+    "style_tags": ["realistic", "colored", "architectural render", ...]
 }"""
 
     SYSTEM_PROMPT_3D_PREVIEW = """You are an expert at creating prompts for 3D architectural visualization renders.
@@ -202,7 +198,7 @@ Respond in JSON format:
         num_images: int = 1,
         size: str = "1024x1024",
         quality: str = "hd",
-        style: str = "natural",  # Natural works better for clean line art
+        style: str = "vivid",  # Vivid produces richer colors for 3D reconstruction
         include_3d_preview: bool = True
     ) -> ImageGenerateResponse:
         """
@@ -222,21 +218,21 @@ Respond in JSON format:
         if not self._client:
             raise RuntimeError("OpenAI not configured. Set OPENAI_API_KEY.")
 
-        # 2D flat line art - blueprint style with colored outlines only, NO 3D rendering
-        line_prefix = (
-            "2D flat line art, blueprint technical drawing style, "
-            "ONLY colored outline strokes, NO fill colors, NO 3D rendering, "
-            "NO realistic textures, bold purple blue and teal colored lines "
-            "on pure white background, vector illustration style, "
+        # Realistic colored render for 3D reconstruction
+        render_prefix = (
+            "Realistic colored architectural render, "
+            "isolated building on clean white background, "
+            "soft even studio lighting, no shadows on background, "
+            "accurate real-world materials and colors, "
+            "high detail, centered composition, "
         )
-        line_prompt = f"{line_prefix}{prompt}"
 
-        # Specific views: front, side, top, isometric - all 2D flat
+        # Specific views showing different faces for multi-view reconstruction
         view_prompts = [
-            f"{line_prompt}, front elevation 2D blueprint",
-            f"{line_prefix}{prompt}, side elevation 2D blueprint",
-            f"{line_prefix}{prompt}, top down 2D floor plan style",
-            f"{line_prefix}{prompt}, isometric 2D technical drawing"
+            f"{render_prefix}{prompt}, front elevation view, straight-on front facade",
+            f"{render_prefix}{prompt}, right side elevation view, perpendicular side view",
+            f"{render_prefix}{prompt}, rear elevation view, back of building",
+            f"{render_prefix}{prompt}, 3/4 perspective view showing front and side",
         ][:num_images]
 
         # Generate all images in parallel instead of sequentially

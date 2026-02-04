@@ -50,7 +50,6 @@ type WorkflowStage = "input" | "preview" | "placing";
 interface GeneratorState {
   prompt: string;
   style: "architectural" | "modern" | "classical" | "futuristic";
-  numViews: number;
   workflowStage: WorkflowStage;
   previewResult: PreviewResult | null;
   selectedImageIndex: number;
@@ -61,7 +60,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
   const [isMinimized, setIsMinimized] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<"architectural" | "modern" | "classical" | "futuristic">("architectural");
-  const [numViews, setNumViews] = useState(1);
+  const numViews = 4;
 
   const [workflowStage, setWorkflowStage] = useState<WorkflowStage>("input");
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
@@ -82,7 +81,6 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
         const state: GeneratorState = JSON.parse(saved);
         setPrompt(state.prompt);
         setStyle(state.style);
-        setNumViews(state.numViews);
         setWorkflowStage(state.workflowStage);
         setPreviewResult(state.previewResult);
         setSelectedImageIndex(state.selectedImageIndex);
@@ -102,14 +100,13 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
     const state: GeneratorState = {
       prompt,
       style,
-      numViews,
       workflowStage,
       previewResult,
       selectedImageIndex,
       threeDJob,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [prompt, style, numViews, workflowStage, previewResult, selectedImageIndex, threeDJob]);
+  }, [prompt, style, workflowStage, previewResult, selectedImageIndex, threeDJob]);
 
   useEffect(() => {
     if (!isVisible && !isMinimized) {
@@ -536,25 +533,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                 </div>
               </div>
 
-              <div className="pt-2">
-                <label className="block text-white/80 text-base font-medium font-serif italic tracking-wide mb-3">Image Views</label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4].map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setNumViews(n)}
-                      disabled={isGeneratingPreview}
-                      className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                        numViews === n
-                          ? "bg-white/20 border-white/30 text-white"
-                          : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
-                      } disabled:opacity-50`}
-                    >
-                      {n} {n === 1 ? "View" : "Views"}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               <button
                 onClick={handleGeneratePreview}
