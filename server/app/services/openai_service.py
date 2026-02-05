@@ -202,75 +202,65 @@ Respond in JSON format:
     async def generate_images(
         self,
         prompt: str,
-        num_images: int = 2,  # noqa: ARG002 - kept for API compatibility
+        num_images: int = 1,  # noqa: ARG002 - kept for API compatibility
         size: str = "1024x1024",
         quality: str = "hd",
         style: str = "vivid",
         include_3d_preview: bool = True
     ) -> ImageGenerateResponse:
         """
-        Generate 2 complementary images for 3D reconstruction with DALL-E 3.
-        Uses ultra-specific shared details to maximize consistency between views.
+        Generate a single high-quality image optimized for 3D reconstruction.
 
         Returns:
-            ImageGenerateResponse with image URLs and optional 3D preview
+            ImageGenerateResponse with image URL and optional 3D preview
         """
         _ = num_images
         if not self._client:
             raise RuntimeError("OpenAI not configured. Set OPENAI_API_KEY.")
 
-        shared_details = (
-            f"{prompt}, "
+        render_prompt = (
+            f"Isometric 3/4 view of {prompt}, "
+            "showing front and side clearly, "
             "isolated on pure white background, "
-            "soft even studio lighting from multiple angles, "
+            "soft even studio lighting from all angles, "
             "no shadows on background, "
-            "realistic materials and accurate colors, "
-            "high detail, centered composition, "
-            "complete object with no cropping, "
-            "professional architectural visualization, "
-            "exact same proportions and features in every view"
+            "photorealistic materials and accurate colors, "
+            "extremely high detail and sharp edges, "
+            "centered composition filling 80% of frame, "
+            "complete object with absolutely no cropping, "
+            "professional product photography, studio quality"
         )
-
-        view_prompts = [
-            f"Isometric 3/4 view from front-left angle of {shared_details}",
-            f"Isometric 3/4 view from front-right angle of {shared_details}",
-        ]
 
         size_param = cast(Literal["1024x1024", "1792x1024", "1024x1792"], size)
         quality_param = cast(Literal["standard", "hd"], quality)
         style_param = cast(Literal["natural", "vivid"], style)
 
-        async def generate_single(view_prompt: str) -> str | None:
-            if not self._client:
-                return None
-            response = await self._client.images.generate(
+        if include_3d_preview:
+            main_task = self._client.images.generate(
                 model="dall-e-3",
-                prompt=view_prompt,
+                prompt=render_prompt,
                 size=size_param,
                 quality=quality_param,
                 style=style_param,
                 n=1
             )
-            return response.data[0].url
-
-        if include_3d_preview:
-            results = await asyncio.gather(
-                generate_single(view_prompts[0]),
-                generate_single(view_prompts[1]),
-                self._generate_3d_preview(prompt, size, quality),
-            )
-            images = [url for url in results[:2] if url]
-            preview_3d_url = results[2]
+            preview_task = self._generate_3d_preview(prompt, size, quality)
+            main_response, preview_3d_url = await asyncio.gather(main_task, preview_task)
+            image_url = main_response.data[0].url
         else:
-            results = await asyncio.gather(
-                generate_single(view_prompts[0]),
-                generate_single(view_prompts[1]),
+            response = await self._client.images.generate(
+                model="dall-e-3",
+                prompt=render_prompt,
+                size=size_param,
+                quality=quality_param,
+                style=style_param,
+                n=1
             )
-            images = [url for url in results if url]
+            image_url = response.data[0].url
             preview_3d_url = None
 
         return ImageGenerateResponse(
-            images=images,
+            images=[image_url] if image_url else [],
             prompt_used=prompt,
             preview_3d_url=preview_3d_url
         )
