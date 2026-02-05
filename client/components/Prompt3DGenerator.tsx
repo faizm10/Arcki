@@ -325,9 +325,11 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
   };
 
   const quickPrompts = [
-    { label: "Art Deco", prompt: "Art Deco skyscraper with geometric patterns, stepped facade, and ornamental metalwork" },
-    { label: "Brutalist", prompt: "Brutalist concrete building with bold geometric forms and exposed structural elements" },
-    { label: "Victorian", prompt: "Victorian-era building with decorative trim, bay windows, and colorful painted facade" },
+    { label: "Japanese Garden", prompt: "serene Japanese zen garden with stone lantern, wooden bridge, and bonsai trees" },
+    { label: "Parisian Cafe", prompt: "charming Parisian corner cafe with striped awning, outdoor seating, and flower boxes" },
+    { label: "Greek Temple", prompt: "ancient Greek temple with marble columns, triangular pediment, and statue" },
+    { label: "Treehouse", prompt: "whimsical wooden treehouse with rope ladder, balcony, and hanging lanterns" },
+    { label: "Castle Tower", prompt: "medieval stone castle tower with crenellations, arched windows, and flag" },
   ];
 
   const ExpandedModal = () => {

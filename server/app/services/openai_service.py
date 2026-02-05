@@ -222,13 +222,14 @@ Respond in JSON format:
             f"Isometric 3/4 view of {prompt}, "
             "showing front and side clearly, "
             "isolated on pure white background, "
-            "soft even studio lighting from all angles, "
-            "no shadows on background, "
-            "photorealistic materials and accurate colors, "
+            "bright flat lighting with NO shadows anywhere, "
+            "evenly lit from all sides, "
+            "all surfaces fully illuminated and bright, "
+            "photorealistic materials and accurate vibrant colors, "
             "extremely high detail and sharp edges, "
             "centered composition filling 80% of frame, "
             "complete object with absolutely no cropping, "
-            "professional product photography, studio quality"
+            "professional product photography, shadowless studio lighting"
         )
 
         size_param = cast(Literal["1024x1024", "1792x1024", "1024x1792"], size)
