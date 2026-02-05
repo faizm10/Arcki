@@ -30,6 +30,7 @@ interface PreviewResult {
   original_prompt: string;
   cleaned_prompt: string;
   dalle_prompt: string;
+  short_name: string;
   image_urls: string[];
   preview_3d_url?: string;
 }
@@ -60,7 +61,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
   const [isMinimized, setIsMinimized] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<"architectural" | "modern" | "classical" | "futuristic">("architectural");
-  const numViews = 6;
+  const numViews = 1;
 
   const [workflowStage, setWorkflowStage] = useState<WorkflowStage>("input");
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
@@ -286,7 +287,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
         rotationY: 0,
         rotationZ: 0,
         isFavorited: false,
-        generatedFrom: previewResult?.cleaned_prompt?.substring(0, 100),
+        generatedFrom: previewResult?.short_name || previewResult?.cleaned_prompt?.substring(0, 50),
       });
 
       localStorage.removeItem(STORAGE_KEY);
@@ -579,7 +580,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                 <div className="flex items-center justify-between">
                   <label className="text-white/70 text-sm font-medium flex items-center gap-2">
                     <ImageIcon className="w-4 h-4" />
-                    Generated Views
+                    {previewResult.short_name || "Generated Image"}
                   </label>
                   <button
                     onClick={() => setIsExpandedView(true)}
@@ -589,67 +590,20 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
                     Expand
                   </button>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  {previewResult.image_urls.map((url, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        setSelectedImageIndex(i);
-                        setIsExpandedView(true);
-                      }}
-                      className={`relative aspect-square rounded-lg overflow-hidden border transition-all hover:scale-[1.02] ${
-                        selectedImageIndex === i
-                          ? "border-white/40 ring-2 ring-white/20"
-                          : "border-white/10 hover:border-white/30"
-                      }`}
-                    >
-                      <Image
-                        src={url}
-                        alt={`View ${i + 1}`}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                      <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-white/70">
-                        View {i + 1}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
-              {previewResult.preview_3d_url && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-white/70 text-sm font-medium flex items-center gap-2">
-                      <CubeIcon className="w-4 h-4" />
-                      3D Preview
-                      <span className="text-white/40 text-xs font-normal">(visualization only)</span>
-                    </label>
-                  </div>
-                  <button
-                    onClick={() => window.open(previewResult.preview_3d_url, '_blank')}
-                    className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-all hover:scale-[1.01]"
-                  >
-                    <Image
-                      src={previewResult.preview_3d_url}
-                      alt="3D Preview"
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                      <span className="text-white/80 text-xs font-medium">3D Perspective Render</span>
-                      <span className="px-2 py-0.5 rounded bg-white/20 text-white/70 text-[10px]">Click to expand</span>
-                    </div>
-                  </button>
-                  <p className="text-white/40 text-xs text-center">
-                    This is a preview of how your model might look. The actual 3D model is generated from the elevation views above.
-                  </p>
-                </div>
-              )}
+                <button
+                  onClick={() => setIsExpandedView(true)}
+                  className="relative w-full aspect-square rounded-lg overflow-hidden border border-white/10 hover:border-white/30 transition-all hover:scale-[1.01]"
+                >
+                  <Image
+                    src={previewResult.image_urls[0]}
+                    alt={previewResult.short_name || "Generated"}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                </button>
+              </div>
 
               <div className="p-3 rounded-lg bg-white/5 border border-white/10">
                 <p className="text-white/50 text-xs line-clamp-2">

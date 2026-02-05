@@ -20,6 +20,7 @@ class PromptCleanResponse(BaseModel):
     original_prompt: str
     cleaned_prompt: str
     dalle_prompt: str
+    short_name: str
     style_tags: list[str]
 
 
@@ -148,8 +149,9 @@ class PreviewResponse(BaseModel):
     original_prompt: str
     cleaned_prompt: str
     dalle_prompt: str
+    short_name: str
     image_urls: list[str]
-    preview_3d_url: Optional[str] = None  # 3D perspective preview for user visualization (not used for Trellis)
+    preview_3d_url: Optional[str] = None
     message: str
 
 

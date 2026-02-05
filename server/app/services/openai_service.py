@@ -90,30 +90,35 @@ If no results were found, provide a helpful message."""
         "futuristic": "futuristic architecture, sleek materials, dramatic lighting, realistic rendering",
     }
 
-    SYSTEM_PROMPT = """You create prompts for DALL-E that generate REALISTIC COLORED renders suitable for 3D model reconstruction.
+    SYSTEM_PROMPT = """You create prompts for DALL-E that generate images optimized for AI 3D model reconstruction.
 
-YOUR #1 RULE: DO NOT change what the user asked for. If they say "garden", generate a garden — NOT a "garden pavilion" or "garden gazebo". Keep the EXACT subject. You only add rendering/style details, NEVER change the subject matter.
+YOUR #1 RULE: DO NOT change what the user asked for. If they say "garden", generate a garden — NOT a "garden pavilion". Keep the EXACT subject.
 
-RENDERING RULES:
-- REALISTIC, FULLY COLORED with proper materials and textures
-- ACCURATE REAL-WORLD COLORS: grass=green, brick=red/brown, glass=reflective blue-gray, concrete=gray, wood=brown, etc.
-- For KNOWN landmarks (CN Tower, Eiffel Tower, etc.), match their REAL colors and proportions exactly
-- CLEAN WHITE or light gray background — NO environment, NO ground, NO sky
-- Subject should be the ONLY object — isolated, centered, well-lit
-- SOFT EVEN LIGHTING, minimal shadows
-- NO text, labels, or watermarks
-- REALISTIC PROPORTIONS
+CRITICAL FOR 3D RECONSTRUCTION:
+- ISOMETRIC or 3/4 PERSPECTIVE VIEW showing at least 2-3 faces of the subject
+- CLEAN WHITE BACKGROUND — absolutely NO environment, ground, sky, or shadows on background
+- Subject CENTERED and ISOLATED — the ONLY object in frame
+- SOFT EVEN STUDIO LIGHTING from multiple angles — minimal harsh shadows
+- REALISTIC MATERIALS with accurate colors (brick=red/brown, glass=blue-gray, concrete=gray, wood=brown)
+- For KNOWN landmarks, match their REAL colors and proportions exactly
+- NO text, labels, watermarks, or decorative elements
+- Subject should fill ~70% of the frame
+- Show the COMPLETE object — no cropping
 
-These images feed an AI 3D reconstruction model, so:
-- Clean isolation on white background is essential
-- All surfaces need visible color and texture
-- Each view should show different faces of the subject
+The image feeds an AI that extracts 3D geometry from shading and edges, so:
+- Clear tonal separation between surfaces is essential
+- Every visible face needs distinct texture/color
+- Avoid extreme perspective distortion
+
+Also generate a SHORT NAME (2-4 words max) that captures the essence of what the user wants.
+Examples: "japanese garden" -> "Japanese Garden", "modern glass skyscraper with steel frame" -> "Glass Skyscraper", "victorian mansion with turrets" -> "Victorian Mansion"
 
 Respond in JSON:
 {
     "cleaned_prompt": "The user's description preserved faithfully",
-    "dalle_prompt": "The user's subject with added rendering details only",
-    "style_tags": ["realistic", "colored", "architectural render"]
+    "dalle_prompt": "Optimized prompt for 3D reconstruction",
+    "short_name": "2-4 word name",
+    "style_tags": ["isometric", "3d-optimized", "white-background"]
 }"""
 
     SYSTEM_PROMPT_3D_PREVIEW = """You are an expert at creating prompts for 3D architectural visualization renders.
@@ -190,93 +195,71 @@ Respond in JSON format:
             original_prompt=prompt,
             cleaned_prompt=result.get("cleaned_prompt", prompt),
             dalle_prompt=result.get("dalle_prompt", prompt),
+            short_name=result.get("short_name", prompt[:30]),
             style_tags=result.get("style_tags", [])
         )
 
     async def generate_images(
         self,
         prompt: str,
-        num_images: int = 1,
+        num_images: int = 1,  # noqa: ARG002 - kept for API compatibility
         size: str = "1024x1024",
         quality: str = "hd",
-        style: str = "vivid",  # Vivid produces richer colors for 3D reconstruction
+        style: str = "vivid",
         include_3d_preview: bool = True
     ) -> ImageGenerateResponse:
         """
-        Generate architectural images with DALL-E 3.
-
-        Args:
-            prompt: Optimized DALL-E prompt
-            num_images: Number of views to generate (1-4)
-            size: Image size
-            quality: standard or hd
-            style: natural or vivid
-            include_3d_preview: Whether to also generate a 3D preview render
+        Generate a single optimized image for 3D reconstruction with DALL-E 3.
 
         Returns:
-            ImageGenerateResponse with image URLs and optional 3D preview
+            ImageGenerateResponse with image URL and optional 3D preview
         """
+        _ = num_images
         if not self._client:
             raise RuntimeError("OpenAI not configured. Set OPENAI_API_KEY.")
 
-        # Realistic colored render for 3D reconstruction
-        render_prefix = (
-            "Realistic colored architectural render, "
-            "isolated building on clean white background, "
-            "soft even studio lighting, no shadows on background, "
-            "accurate real-world materials and colors, "
+        render_prompt = (
+            f"Isometric 3/4 view of {prompt}, "
+            "showing front and side faces clearly, "
+            "isolated on pure white background, "
+            "soft even studio lighting from multiple angles, "
+            "no shadows on background, "
+            "realistic materials and accurate colors, "
             "high detail, centered composition, "
+            "complete object with no cropping, "
+            "professional product photography style"
         )
 
-        # 6 views covering all faces for optimal multi-view reconstruction
-        view_prompts = [
-            f"{render_prefix}{prompt}, front elevation view, straight-on front facade",
-            f"{render_prefix}{prompt}, right side elevation view, perpendicular side view",
-            f"{render_prefix}{prompt}, rear elevation view, back of building",
-            f"{render_prefix}{prompt}, left side elevation view, perpendicular side view",
-            f"{render_prefix}{prompt}, 3/4 perspective view from front-right showing two faces",
-            f"{render_prefix}{prompt}, 3/4 perspective view from back-left showing two faces",
-        ][:num_images]
+        size_param = cast(Literal["1024x1024", "1792x1024", "1024x1792"], size)
+        quality_param = cast(Literal["standard", "hd"], quality)
+        style_param = cast(Literal["natural", "vivid"], style)
 
-        # Generate all images in parallel instead of sequentially
-        async def generate_single_image(view_prompt: str):
-            # Cast size and quality to satisfy OpenAI API type requirements
-            size_param = cast(
-                Literal["1024x1024", "1792x1024", "1024x1792"],
-                size
-            )
-            quality_param = cast(Literal["standard", "hd"], quality)
-            style_param = cast(Literal["natural", "vivid"], style)
-
-            if not self._client:
-                raise RuntimeError("OpenAI client not configured")
-            response = await self._client.images.generate(
+        if include_3d_preview:
+            main_task = self._client.images.generate(
                 model="dall-e-3",
-                prompt=view_prompt,
+                prompt=render_prompt,
                 size=size_param,
                 quality=quality_param,
                 style=style_param,
                 n=1
             )
-            return response.data[0].url
-
-        # Run view images AND 3D preview concurrently (saves ~40s)
-        preview_3d_url: Optional[str] = None
-        if include_3d_preview:
-            all_results = await asyncio.gather(
-                asyncio.gather(*[generate_single_image(p) for p in view_prompts]),
-                self._generate_3d_preview(prompt, size, quality),
-            )
-            images: list[str] = cast(list[str], list(all_results[0]))
-            preview_3d_url = all_results[1]
+            preview_task = self._generate_3d_preview(prompt, size, quality)
+            main_response, preview_3d_url = await asyncio.gather(main_task, preview_task)
+            image_url = main_response.data[0].url
         else:
-            image_results = await asyncio.gather(
-                *[generate_single_image(p) for p in view_prompts]
+            response = await self._client.images.generate(
+                model="dall-e-3",
+                prompt=render_prompt,
+                size=size_param,
+                quality=quality_param,
+                style=style_param,
+                n=1
             )
-            images: list[str] = cast(list[str], list(image_results))
+            image_url = response.data[0].url
+            preview_3d_url = None
 
         return ImageGenerateResponse(
-            images=images,
+            images=[image_url] if image_url else [],
             prompt_used=prompt,
             preview_3d_url=preview_3d_url
         )
