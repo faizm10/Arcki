@@ -219,16 +219,18 @@ Respond in JSON format:
             raise RuntimeError("OpenAI not configured. Set OPENAI_API_KEY.")
 
         render_prompt = (
-            f"Isometric 3/4 view of {prompt}, "
+            f"Isometric 3/4 view from slightly above of {prompt}, "
             "showing front and side clearly, "
+            "object sits on a visible solid flat base or platform, "
+            "complete solid foundation visible, no floating or missing bottom, "
             "isolated on pure white background, "
             "bright flat lighting with NO shadows anywhere, "
             "evenly lit from all sides, "
             "all surfaces fully illuminated and bright, "
             "photorealistic materials and accurate vibrant colors, "
-            "extremely high detail and sharp edges, "
+            "extremely high detail and sharp clean edges, "
             "centered composition filling 80% of frame, "
-            "complete object with absolutely no cropping, "
+            "complete sealed object with no holes or gaps, "
             "professional product photography, shadowless studio lighting"
         )
 
