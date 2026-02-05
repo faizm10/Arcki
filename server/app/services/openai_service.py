@@ -90,29 +90,30 @@ If no results were found, provide a helpful message."""
         "futuristic": "futuristic architecture, sleek materials, dramatic lighting, realistic rendering",
     }
 
-    SYSTEM_PROMPT = """You create prompts for DALL-E that generate REALISTIC COLORED architectural renders suitable for 3D model reconstruction.
+    SYSTEM_PROMPT = """You create prompts for DALL-E that generate REALISTIC COLORED renders suitable for 3D model reconstruction.
 
-CRITICAL RULES - MUST FOLLOW:
-- Generate REALISTIC, FULLY COLORED images with proper materials and textures
-- Use ACCURATE REAL-WORLD COLORS: grass is green, brick is red/brown, glass is reflective blue-gray, concrete is gray, wood is brown, etc.
-- For KNOWN BUILDINGS (e.g. CN Tower, Eiffel Tower, Empire State Building), match their REAL colors and proportions exactly
-- CLEAN SOLID BACKGROUND — pure white or light gray, NO environment, NO ground plane, NO sky
-- The building should be the ONLY object in the image — isolated, centered, well-lit
-- Use SOFT EVEN LIGHTING from multiple directions to minimize shadows and show all surfaces clearly
-- NO text, labels, annotations, or watermarks
-- Show REALISTIC PROPORTIONS — the building should look architecturally accurate
-- Materials should be clearly distinguishable: glass vs steel vs concrete vs brick etc.
+YOUR #1 RULE: DO NOT change what the user asked for. If they say "garden", generate a garden — NOT a "garden pavilion" or "garden gazebo". Keep the EXACT subject. You only add rendering/style details, NEVER change the subject matter.
 
-The images will be used by an AI 3D reconstruction model (Trellis), so:
-- Clean isolation on white/light background is essential
-- All surfaces need visible color and texture information
-- Multiple distinct views help reconstruction — each view should show different faces of the building
+RENDERING RULES:
+- REALISTIC, FULLY COLORED with proper materials and textures
+- ACCURATE REAL-WORLD COLORS: grass=green, brick=red/brown, glass=reflective blue-gray, concrete=gray, wood=brown, etc.
+- For KNOWN landmarks (CN Tower, Eiffel Tower, etc.), match their REAL colors and proportions exactly
+- CLEAN WHITE or light gray background — NO environment, NO ground, NO sky
+- Subject should be the ONLY object — isolated, centered, well-lit
+- SOFT EVEN LIGHTING, minimal shadows
+- NO text, labels, or watermarks
+- REALISTIC PROPORTIONS
+
+These images feed an AI 3D reconstruction model, so:
+- Clean isolation on white background is essential
+- All surfaces need visible color and texture
+- Each view should show different faces of the subject
 
 Respond in JSON:
 {
-    "cleaned_prompt": "Simple description of the building",
-    "dalle_prompt": "Detailed prompt following the rules above",
-    "style_tags": ["realistic", "colored", "architectural render", ...]
+    "cleaned_prompt": "The user's description preserved faithfully",
+    "dalle_prompt": "The user's subject with added rendering details only",
+    "style_tags": ["realistic", "colored", "architectural render"]
 }"""
 
     SYSTEM_PROMPT_3D_PREVIEW = """You are an expert at creating prompts for 3D architectural visualization renders.
@@ -227,12 +228,14 @@ Respond in JSON format:
             "high detail, centered composition, "
         )
 
-        # Specific views showing different faces for multi-view reconstruction
+        # 6 views covering all faces for optimal multi-view reconstruction
         view_prompts = [
             f"{render_prefix}{prompt}, front elevation view, straight-on front facade",
             f"{render_prefix}{prompt}, right side elevation view, perpendicular side view",
             f"{render_prefix}{prompt}, rear elevation view, back of building",
-            f"{render_prefix}{prompt}, 3/4 perspective view showing front and side",
+            f"{render_prefix}{prompt}, left side elevation view, perpendicular side view",
+            f"{render_prefix}{prompt}, 3/4 perspective view from front-right showing two faces",
+            f"{render_prefix}{prompt}, 3/4 perspective view from back-left showing two faces",
         ][:num_images]
 
         # Generate all images in parallel instead of sequentially
@@ -257,17 +260,20 @@ Respond in JSON format:
             )
             return response.data[0].url
 
-        # Run all image generations concurrently
-        image_results = await asyncio.gather(
-            *[generate_single_image(p) for p in view_prompts]
-        )
-        # Type assertion: we know all URLs are strings
-        images: list[str] = cast(list[str], list(image_results))
-
-        # Generate 3D preview image (separate from the flat elevation images)
+        # Run view images AND 3D preview concurrently (saves ~40s)
         preview_3d_url: Optional[str] = None
         if include_3d_preview:
-            preview_3d_url = await self._generate_3d_preview(prompt, size, quality)
+            all_results = await asyncio.gather(
+                asyncio.gather(*[generate_single_image(p) for p in view_prompts]),
+                self._generate_3d_preview(prompt, size, quality),
+            )
+            images: list[str] = cast(list[str], list(all_results[0]))
+            preview_3d_url = all_results[1]
+        else:
+            image_results = await asyncio.gather(
+                *[generate_single_image(p) for p in view_prompts]
+            )
+            images: list[str] = cast(list[str], list(image_results))
 
         return ImageGenerateResponse(
             images=images,

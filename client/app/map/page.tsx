@@ -21,6 +21,7 @@ import { GitHubLogoIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { BugReportModal } from "@/components/modals/BugReportModal";
 import { Tutorial, shouldShowTutorial } from "@/components/Tutorial";
 import { supabase } from "@/lib/supabase";
+import { saveWorldState, loadWorldState, storeGlbData, type SavedModel } from "@/lib/worldStorage";
 
 interface SelectedBuilding {
   id: string | number;
@@ -199,6 +200,8 @@ export default function MapPage() {
   const isPlacingModelRef = useRef(isPlacingModel);
   const selectedModelIdRef = useRef(selectedModelId);
   const insertCooldownRef = useRef(false);
+  const worldStateRestoredRef = useRef(false);
+  const [cameraMoveCount, setCameraMoveCount] = useState(0);
 
   const handleSetActiveTool = (tool: "select" | "draw" | "insert" | null) => {
     if (tool === "insert" && insertCooldownRef.current) {
@@ -263,6 +266,43 @@ export default function MapPage() {
   useEffect(() => {
     modelRedoStackRef.current = modelRedoStack;
   }, [modelRedoStack]);
+
+  useEffect(() => {
+    if (!worldStateRestoredRef.current) return;
+    const timer = setTimeout(() => {
+      if (!map.current) return;
+      const center = map.current.getCenter();
+      const savedModels: SavedModel[] = insertedModels.map((m) => ({
+        id: m.id,
+        name: m.name,
+        position: m.position,
+        height: m.height,
+        heightLocked: m.heightLocked,
+        scale: m.scale,
+        rotationX: m.rotationX,
+        rotationY: m.rotationY,
+        rotationZ: m.rotationZ,
+        isFavorited: m.isFavorited,
+        generatedFrom: m.generatedFrom,
+        supabaseModelId: m.supabaseModelId,
+        supabaseGlbUrl: m.supabaseGlbUrl,
+        hasLocalGlb: !m.supabaseGlbUrl && m.modelUrl.startsWith("blob:"),
+      }));
+      saveWorldState({
+        insertedModels: savedModels,
+        deletedFeatures,
+        lightMode,
+        weather,
+        camera: {
+          center: [center.lng, center.lat],
+          zoom: map.current!.getZoom(),
+          pitch: map.current!.getPitch(),
+          bearing: map.current!.getBearing(),
+        },
+      });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [insertedModels, deletedFeatures, lightMode, weather, cameraMoveCount]);
 
   const updateDeletedAreasSource = useCallback((features: GeoJSON.Feature[]) => {
     if (map.current) {
@@ -1058,6 +1098,10 @@ export default function MapPage() {
       return updated;
     });
 
+    if (pending.url.startsWith("blob:") && !pending.supabaseGlbUrl) {
+      storeGlbData(newModel.id, pending.url);
+    }
+
     setPendingModel(null);
     setIsPlacingModel(false);
     setPreviewPosition(null);
@@ -1347,6 +1391,58 @@ export default function MapPage() {
           console.error("Error adding model layer:", err);
         }
 
+        // restore saved world state from localStorage + IndexedDB
+        loadWorldState().then((saved) => {
+          if (!saved || !map.current) {
+            worldStateRestoredRef.current = true;
+            return;
+          }
+          const { state, blobUrls } = saved;
+
+          map.current.jumpTo({
+            center: state.camera.center,
+            zoom: state.camera.zoom,
+            pitch: state.camera.pitch,
+            bearing: state.camera.bearing,
+          });
+
+          if (state.lightMode !== "day") {
+            setLightMode(state.lightMode);
+            map.current.setConfigProperty("basemap", "lightPreset", state.lightMode);
+          }
+
+          if (state.weather !== "clear") {
+            setWeather(state.weather);
+            const mapInstance = map.current as any;
+            if (state.weather === "rain") {
+              mapInstance.setRain?.({ intensity: 0.5, color: "rgba(180, 220, 255, 0.5)", opacity: 0.8, density: 1.0, direction: [0, 80], centerThinning: 0.5 });
+            } else if (state.weather === "snow") {
+              mapInstance.setSnow?.({ intensity: 0.6, color: "rgba(255, 255, 255, 0.9)", opacity: 0.9, density: 0.9, direction: [0, 50], centerThinning: 0.3, vignetteColor: "rgba(200, 220, 255, 0.3)" });
+            }
+          }
+
+          if (state.deletedFeatures.length > 0) {
+            setDeletedFeatures(state.deletedFeatures);
+            updateDeletedAreasSource(state.deletedFeatures);
+          }
+
+          if (state.insertedModels.length > 0) {
+            const restoredModels: InsertedModel[] = state.insertedModels
+              .map((m) => ({
+                ...m,
+                modelUrl: m.supabaseGlbUrl || blobUrls.get(m.id) || "",
+              }))
+              .filter((m) => m.modelUrl);
+
+            setInsertedModels(restoredModels);
+            updateModelsSource(restoredModels);
+          }
+
+          worldStateRestoredRef.current = true;
+        }).catch(() => {
+          worldStateRestoredRef.current = true;
+        });
+
       });
 
       map.current.on("click", handleBuildingClick);
@@ -1360,6 +1456,12 @@ export default function MapPage() {
             const screenPos = map.current.project(model.position);
             setGizmoScreenPos({ x: screenPos.x, y: screenPos.y });
           }
+        }
+      });
+
+      map.current.on("moveend", () => {
+        if (worldStateRestoredRef.current) {
+          setCameraMoveCount((c) => c + 1);
         }
       });
     }

@@ -60,7 +60,7 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
   const [isMinimized, setIsMinimized] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<"architectural" | "modern" | "classical" | "futuristic">("architectural");
-  const numViews = 4;
+  const numViews = 6;
 
   const [workflowStage, setWorkflowStage] = useState<WorkflowStage>("input");
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
@@ -85,15 +85,10 @@ export function Prompt3DGenerator({ isVisible, onClose, onRequestExpand, onPlace
         setPreviewResult(state.previewResult);
         setSelectedImageIndex(state.selectedImageIndex);
         setThreeDJob(state.threeDJob);
-
-        if (state.previewResult && state.workflowStage === "preview") {
-          start3DGeneration(state.previewResult.job_id);
-        }
       }
     } catch (e) {
       console.error("Failed to restore generator state:", e);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

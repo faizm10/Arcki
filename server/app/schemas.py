@@ -78,7 +78,7 @@ class PipelineRequest(BaseModel):
         default="architectural",
         pattern="^(architectural|modern|classical|futuristic)$"
     )
-    num_views: int = Field(default=1, ge=1, le=4)
+    num_views: int = Field(default=6, ge=1, le=6)
     texture_size: int = Field(default=1024, ge=512, le=2048)
     high_quality: bool = True
 
@@ -137,7 +137,7 @@ class PreviewRequest(BaseModel):
         default="architectural",
         pattern="^(architectural|modern|classical|futuristic)$"
     )
-    num_views: int = Field(default=1, ge=1, le=4)
+    num_views: int = Field(default=6, ge=1, le=6)
     high_quality: bool = True
 
 
